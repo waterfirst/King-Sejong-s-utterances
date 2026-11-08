@@ -29,6 +29,9 @@
       const facialMaterial = new T.MeshStandardMaterial({roughness:.48,transparent:true,opacity:.82});
       const skinMaterial = new T.MeshStandardMaterial({roughness:.68,transparent:true,opacity:.26,depthWrite:false});
       const skinShadowMaterial = new T.MeshStandardMaterial({roughness:.75,transparent:true,opacity:.19,depthWrite:false});
+      const boneMaterial = new T.MeshStandardMaterial({roughness:.52,transparent:true,opacity:.86});
+      const cartilageMaterial = new T.MeshStandardMaterial({roughness:.47,transparent:true,opacity:.76});
+      const airwayMaterial = new T.MeshStandardMaterial({roughness:.82,transparent:true,opacity:.54,depthWrite:false});
       const eyeMaterial = new T.MeshStandardMaterial({roughness:.25,metalness:.04});
       const irisMaterial = new T.MeshStandardMaterial({roughness:.31,metalness:.16});
       const lipDetailMaterial = new T.MeshStandardMaterial({roughness:.38,transparent:true,opacity:.92});
@@ -68,6 +71,9 @@
         facialMaterial.color.copy(cssColor('--viz-series-1'));
         skinMaterial.color.copy(panel).lerp(text,.18);
         skinShadowMaterial.color.copy(panel).lerp(text,.34);
+        boneMaterial.color.copy(panel).lerp(cssColor('--orange'),.24);
+        cartilageMaterial.color.copy(cssColor('--red')).lerp(panel,.2);
+        airwayMaterial.color.copy(text).lerp(cssColor('--viz-series-1'),.18);
         eyeMaterial.color.copy(panel).lerp(text,.12);
         irisMaterial.color.copy(cssColor('--viz-series-1'));
         lipDetailMaterial.color.copy(pink).lerp(panel,.1);
@@ -78,6 +84,7 @@
           xrayMaterial.color.set('#74c5db'); xrayLineMaterial.color.set('#9edcf0');
           facialMaterial.color.set('#276274'); eyeMaterial.color.set('#d2f3f5'); irisMaterial.color.set('#1d91ad'); lipDetailMaterial.color.set('#f181aa');
           skinMaterial.color.set('#80969b'); skinShadowMaterial.color.set('#263c43');
+          boneMaterial.color.set('#e3d8bd'); cartilageMaterial.color.set('#c98982'); airwayMaterial.color.set('#173b46');
         }
       }
       function light(scene) {
@@ -150,6 +157,33 @@
       const earNear = ellipsoid(faceShell,skinShadowMaterial,[206,91,45],[12,23,8]);
       const earFar = ellipsoid(faceShell,skinShadowMaterial,[206,91,-45],[12,23,8]);
       const browRidge = ellipsoid(faceShell,skinShadowMaterial,[120,51,1],[34,8,48]);
+      const clinical = new T.Group();
+      clinical.visible = false;
+      overview.add(clinical);
+      const clinicalTube = (points,radius,mat) => {
+        const mesh=new T.Mesh(new T.TubeGeometry(curve(points),40,radius,12,false),mat);
+        clinical.add(mesh); return mesh;
+      };
+      // Simplified sagittal anatomy: color and shape clarify the pathway but are not a diagnostic model.
+      clinicalTube([[70,69,0],[94,62,-2],[126,66,-5],[157,78,-8],[185,87,-9]],4.2,airwayMaterial);
+      clinicalTube([[85,79,1],[115,72,-2],[150,71,-5],[181,78,-8]],3.1,boneMaterial);
+      clinicalTube([[191,81,-8],[212,94,-8],[220,118,-7],[220,145,-6]],4.1,airwayMaterial);
+      const epiglottis = ellipsoid(clinical,cartilageMaterial,[198,91,4],[4.8,14,10]);
+      epiglottis.rotation.z=-.46;
+      const teeth = new T.Group();
+      for (let i=0;i<5;i++) {
+        const top=ellipsoid(teeth,boneMaterial,[92+i*10,82+(i>2?1:0),9],[3.8,5.7,5]);
+        const bottom=ellipsoid(teeth,boneMaterial,[92+i*10,104+(i>2?1:0),9],[3.8,5.2,5]);
+        top.rotation.z=bottom.rotation.z=(i-2)*.07;
+      }
+      clinical.add(teeth);
+      const thyroid = ellipsoid(clinical,cartilageMaterial,[226,142,-1],[18,24,18]);
+      const trachea = new T.Group();
+      for (let i=0;i<6;i++) {
+        const ring = new T.Mesh(new T.TorusGeometry(9.4,1.55,10,24),cartilageMaterial);
+        ring.position.copy(v(230,158+i*12,-1)); ring.rotation.x=Math.PI/2; trachea.add(ring);
+      }
+      clinical.add(trachea);
       const faceDetails = new T.Group();
       faceDetails.visible = false;
       overview.add(faceDetails);
@@ -344,6 +378,7 @@
         cinematic = Boolean(next);
         xrayGroup.visible = cinematic;
         faceShell.visible = cinematic;
+        clinical.visible = cinematic;
         faceDetails.visible = cinematic;
         renderers.forEach(renderer=>renderer.setClearColor(cinematic ? 0x05090d : 0x000000,cinematic ? 1 : 0));
         palette();
