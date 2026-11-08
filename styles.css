@@ -25,6 +25,10 @@ h3 { font-size: 1.1rem; }
 h1 { font-size: clamp(2.1rem, 6vw, 3.5rem); letter-spacing: -.075em; line-height: 1.12; margin-block: .35rem .55rem; }
 .eyebrow { font-weight: 700; color: var(--viz-series-1); }
 .intro, .legend, figcaption, footer, [data-shot], .status { color: var(--muted); }
+.prologue { display: grid; gap: .6rem; padding: clamp(.9rem, 3vw, 1.6rem); border: 1px solid var(--edge); border-radius: .9rem; background: var(--panel); }
+.old-hangul { margin: 0; color: var(--viz-series-1); font-family: 'Noto Serif CJK KR', 'Malgun Gothic', serif; font-size: clamp(1.1rem, 4vw, 1.8rem); line-height: 1.65; overflow-wrap: anywhere; }
+.source-note { color: var(--muted); font-size: .86rem; }
+.page-nav { display: flex; flex-wrap: wrap; gap: .4rem 1rem; padding-block: 1rem; }
 .studio { display: grid; gap: .85rem; border: 1px solid var(--edge); border-radius: 1.15rem; padding: clamp(.85rem, 3vw, 1.6rem); background: var(--panel); }
 .input-line { font-weight: 650; }
 button, input, select { font: inherit; }
@@ -69,6 +73,24 @@ figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 .letter-families dt { font-weight: 750; }
 .letter-families dd { margin: .15rem 0 0; color: var(--muted); font-size: .9rem; }
 .sources { font-size: .9rem; }
+.timeline { margin: 0 0 0 .4rem; padding: 0 0 0 1.15rem; border-left: 2px solid var(--edge); list-style: none; }
+.timeline li { position: relative; display: grid; gap: .35rem; margin-block: 0 1.1rem; }
+.timeline li:last-child { margin-bottom: 0; }
+.timeline li::before { position: absolute; top: .52rem; left: -1.5rem; width: .6rem; height: .6rem; border-radius: 50%; background: var(--viz-series-1); content: ''; }
+.world-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .65rem; margin: 0; }
+.world-stats div { padding: .65rem .85rem; border: 1px solid var(--edge); border-radius: .65rem; background: var(--panel); }
+.world-stats dt { color: var(--muted); font-size: .9rem; }
+.world-stats dd { margin: .1rem 0 0; font-size: 1.35rem; font-weight: 750; }
+.world-map { overflow: hidden; background: var(--panel); border: 1px solid var(--edge); border-radius: .7rem; }
+.world-map img { display: block; width: 100%; height: auto; }
+.world-map figcaption { padding: .55rem .8rem; }
+.map-key { display: inline-block; width: .65rem; height: .65rem; margin-inline: .4rem .2rem; border-radius: 50%; }
+.map-key.adopted { background: #2c7868; }
+.map-key.origin { background: #a85860; }
+.country-list summary { width: fit-content; cursor: pointer; color: var(--viz-series-1); font-weight: 650; }
+.country-list dl { display: grid; gap: .5rem; margin-block: .6rem 0; }
+.country-list dt { font-weight: 650; }
+.country-list dd { margin: 0; }
 footer { margin-top: 1rem; }
 a { color: var(--viz-series-1); }
 @media (max-width: 420px) {

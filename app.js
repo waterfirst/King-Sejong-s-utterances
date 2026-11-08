@@ -147,9 +147,9 @@
     let scene, units=[], tokens=[], index=0, time=0, active=false, raf=0, anchor=0, pending=0, lastCue='', speechRun;
     let composing=false, completed=false, historical=true;
 
-    function render(t, speaking=false) {
+    function render(t, speaking=false, comparison=null) {
       time = t;
-      const unit = tokens[index];
+      const unit = comparison ?? tokens[index];
       const [place, baseKind] = unit ? consonants[unit.onset] : consonants.ㅇ;
       const kind = unit?.lateral ? 'lateral' : baseKind;
       const [codaPlace,codaKind] = finals[unit?.coda] ?? ['open','open'];
@@ -236,10 +236,13 @@
         else { phase = '초성 접촉'; note = kind === 'tap' ? '혀끝이 윗잇몸을 한 번 가볍게 칩니다.' : kind === 'lateral' ? '혀끝이 윗잇몸에 닿고 공기는 혀 옆을 지납니다.' : `${placeNames[place]}에서 입길을 막습니다.`; }
       }
       if (t >= 2.30) { phase = '자세 유지'; note = '음절의 마지막 위치입니다.'; }
-      const cue = `${index}/${unit?.spoken}/${phase}/${note}`;
+      const cue = `${index}/${unit?.spoken}/${phase}/${note}/${Boolean(comparison)}`;
       if (cue !== lastCue) {
         lastCue = cue;
-        el('syllable').textContent = unit ? `${historical ? unit.char : `${index+1}/${tokens.length} · ${unit.char === unit.spoken ? unit.char : `${unit.char} → ${unit.spoken}`}`} · ${phase}` : '한글 음절을 입력하세요.';
+        if (unit) {
+          const caption = comparison ? `현대 비교 · ${unit.char}` : historical ? unit.char : `${index+1}/${tokens.length} · ${unit.char === unit.spoken ? unit.char : `${unit.char} → ${unit.spoken}`}`;
+          el('syllable').textContent = `${caption} · ${phase}`;
+        } else el('syllable').textContent = '한글 음절을 입력하세요.';
         el('articulation').textContent = unit ? note : '';
         el('shot').textContent = unit ? speaking ? '카메라 · 입과 목 전체 고정' : `카메라 · ${isCoda ? placeNames[codaPlace] : isVowel ? targetRound || glideRound ? '입술과 혀' : '입 전체' : placeNames[place] ?? '입 전체'}` : '';
       }
@@ -272,7 +275,7 @@
       cancelAnimationFrame(speechRun.frame);
       clearTimeout(speechRun.timeout);
       speechRun=null;
-      window.speechSynthesis.cancel();
+      window.speechSynthesis?.cancel();
       listenButton.textContent=historical ? comparisonLabel() : '발음과 함께 재생';
       rateInput.disabled=false;
     }
@@ -332,18 +335,52 @@
     function listenComparison(synth,voice) {
       const letter=historicalLetters[jamo.value];
       if (!letter.comparison) return;
-      const speech=new SpeechSynthesisUtterance(letter.comparison);
-      speech.voice=voice; speech.lang=voice.lang; speech.rate=Number(rateInput.value);
+      const comparison=analyze(letter.comparison)[0];
       const run={frame:0,timeout:0};
       speechRun=run;
-      listenButton.textContent='비교 음성 정지'; rateInput.disabled=true;
-      status('현대 한국어 비교 음성입니다.');
-      const finish=message=>{ if (speechRun===run) { stopAudio(); status(message); } };
-      run.timeout=setTimeout(()=>finish('비교 음성을 시작할 수 없습니다.'),5000);
-      speech.onstart=()=>clearTimeout(run.timeout);
-      speech.onend=()=>finish('');
-      speech.onerror=()=>finish('비교 음성을 재생할 수 없습니다.');
-      try { synth.speak(speech); } catch { finish('비교 음성을 시작할 수 없습니다.'); }
+      completed=false;
+      listenButton.textContent='비교 재생 정지'; rateInput.disabled=true;
+      render(0,false,comparison); label();
+
+      const finish=message=>{
+        if (speechRun!==run) return;
+        render(duration,false,comparison);
+        stopAudio(); completed=true; label(); status(message);
+      };
+      const animate=(seconds,withAudio,message='')=>{
+        cancelAnimationFrame(run.frame);
+        const start=performance.now();
+        const lastPose=withAudio ? comparison.coda===' ' ? 1.74 : 2.27 : duration;
+        const step=now=>{
+          if (speechRun!==run) return;
+          const progress=clamp((now-start)/(seconds*1000));
+          render(blend(withAudio ? .18 : 0,lastPose,progress),false,comparison);
+          if (progress<1) run.frame=requestAnimationFrame(step);
+          else if (!withAudio) finish(message);
+        };
+        run.frame=requestAnimationFrame(step);
+      };
+      const preview=message=>{
+        if (speechRun!==run || run.preview) return;
+        run.preview=true; clearTimeout(run.timeout);
+        synth?.cancel(); status(message);
+        animate(duration,false,message);
+      };
+      if (!voice) { preview('로컬 한국어 음성이 없어 현대 비교 음절의 조음을 무음으로 보여줍니다.'); return; }
+
+      const speech=new SpeechSynthesisUtterance(letter.comparison);
+      speech.voice=voice; speech.lang=voice.lang; speech.rate=Number(rateInput.value);
+      status('현대 한국어 비교 음성을 준비하는 중입니다.');
+      const audioError='비교 음성을 재생할 수 없어 조음을 무음으로 보여줍니다.';
+      run.timeout=setTimeout(()=>preview(audioError),5000);
+      speech.onstart=()=>{
+        if (speechRun!==run || run.preview) return;
+        clearTimeout(run.timeout); status('현대 한국어 비교 음성 · 조음 시점은 추정합니다.');
+        animate((comparison.coda===' ' ? .40 : .52)/speech.rate,true);
+      };
+      speech.onend=()=>{ if (!run.preview) finish(''); };
+      speech.onerror=()=>preview(audioError);
+      try { synth.speak(speech); } catch { preview(audioError); }
     }
 
     function spokenTimeline() {
@@ -397,13 +434,13 @@
     }
 
     function listen() {
-      if (speechRun) { stopAudio(); status(''); label(); return; }
+      if (speechRun) { stopAudio(); status(''); if (historical) render(0); label(); return; }
       if (!tokens.length) return;
       stop();
       const synth=window.speechSynthesis;
       const voice=synth?.getVoices().find(candidate=>candidate.localService && /^ko(?:[-_]|$)/i.test(candidate.lang));
-      if (!voice) { status('이 브라우저에서 한국어 시스템 음성을 찾지 못했습니다. 운영체제에 한국어 음성을 추가하면 함께 재생할 수 있습니다.'); return; }
       if (historical) { listenComparison(synth,voice); return; }
+      if (!voice) { status('이 브라우저에서 한국어 시스템 음성을 찾지 못했습니다. 운영체제에 한국어 음성을 추가하면 함께 재생할 수 있습니다.'); return; }
       const {text,words}=spokenTimeline();
       const rate=Number(rateInput.value);
       const utterance=new SpeechSynthesisUtterance(text);
