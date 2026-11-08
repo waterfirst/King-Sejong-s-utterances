@@ -52,6 +52,8 @@ input[type='range'] { width: 100%; margin: 0; accent-color: var(--viz-series-1);
 .views { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); gap: .5rem; background: var(--background); border-radius: .65rem; }
 .viewport { display: grid; text-align: center; min-width: 0; }
 canvas { display: block; width: 100%; height: clamp(145px, 32vw, 300px); }
+[data-mouth] { cursor: grab; touch-action: none; }
+[data-mouth].is-dragging { cursor: grabbing; }
 figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 .cinema-caption { display: none; }
 #hangul-articulation.cinema-mode { max-width: none; min-height: 100vh; padding: clamp(.75rem, 2vw, 1.5rem); background: #101817; color: #f4f0e8; }

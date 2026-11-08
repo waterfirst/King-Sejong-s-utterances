@@ -183,6 +183,26 @@
         camera.updateProjectionMatrix();
       }
       let last;
+      const orbit = {yaw:0,pitch:0};
+      let dragging = null;
+      mouthCanvas.addEventListener('pointerdown',event => {
+        dragging = {id:event.pointerId,x:event.clientX,y:event.clientY};
+        mouthCanvas.setPointerCapture(event.pointerId);
+        mouthCanvas.classList.add('is-dragging');
+      });
+      mouthCanvas.addEventListener('pointermove',event => {
+        if (!dragging || dragging.id !== event.pointerId) return;
+        orbit.yaw = Math.max(-1.18,Math.min(1.18,orbit.yaw+(event.clientX-dragging.x)*.012));
+        orbit.pitch = Math.max(-.48,Math.min(.48,orbit.pitch+(event.clientY-dragging.y)*.008));
+        dragging.x=event.clientX; dragging.y=event.clientY;
+        if (last) draw(last);
+      });
+      const endDrag = event => {
+        if (!dragging || dragging.id !== event.pointerId) return;
+        dragging=null; mouthCanvas.classList.remove('is-dragging');
+      };
+      mouthCanvas.addEventListener('pointerup',endDrag);
+      mouthCanvas.addEventListener('pointercancel',endDrag);
       let cinematic = false;
       function draw(state) {
         last = state;
@@ -243,7 +263,12 @@
         const zoomAdjustment = Math.max(1,1.55/sideCamera.aspect);
         const dist = 333/Math.sqrt(zoom)*zoomAdjustment;
         const sway = still ? 13 : 13+10*Math.sin(Math.PI*step/2.4);
-        sideCamera.position.set(x+sway,-y+18,dist);
+        const sideAngle=orbit.yaw;
+        sideCamera.position.set(
+          x+sway*Math.cos(sideAngle)+dist*Math.sin(sideAngle),
+          -y+18+Math.sin(orbit.pitch)*dist*.36,
+          dist*Math.cos(sideAngle)-sway*Math.sin(sideAngle)
+        );
         sideCamera.lookAt(x,-y,0);
         foldCamera.position.set(3,-9,Math.max(83,67/foldCamera.aspect));
         foldCamera.lookAt(0,0,0);
@@ -264,6 +289,10 @@
         palette();
         if (last) draw(last);
       }
-      return {draw,setCinematic};
+      function resetView() {
+        orbit.yaw=0; orbit.pitch=0;
+        if (last) draw(last);
+      }
+      return {draw,setCinematic,resetView};
     };
   })();

@@ -507,6 +507,7 @@
       if (on && document.fullscreenElement!==root) root.requestFullscreen?.().catch(()=>{});
     }
     cinemaButton.addEventListener('click',()=>setCinema(!root.classList.contains('cinema-mode')));
+    el('reset-camera').addEventListener('click',()=>scene?.resetView());
     document.addEventListener('fullscreenchange',()=>{
       if (document.fullscreenElement!==root && root.classList.contains('cinema-mode')) setCinema(false);
     });
