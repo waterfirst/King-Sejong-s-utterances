@@ -26,6 +26,10 @@
       const cavity = material(.88);
       const signal = new T.MeshBasicMaterial();
       const focusMaterial = new T.MeshBasicMaterial({depthTest:false});
+      const facialMaterial = new T.MeshStandardMaterial({roughness:.48,transparent:true,opacity:.82});
+      const eyeMaterial = new T.MeshStandardMaterial({roughness:.25,metalness:.04});
+      const irisMaterial = new T.MeshStandardMaterial({roughness:.31,metalness:.16});
+      const lipDetailMaterial = new T.MeshStandardMaterial({roughness:.38,transparent:true,opacity:.92});
       const xrayMaterial = new T.MeshBasicMaterial({color:0x7bc8dc,wireframe:true,transparent:true,opacity:.22,depthWrite:false});
       const xrayLineMaterial = new T.LineBasicMaterial({color:0x91d8ea,transparent:true,opacity:.45,depthWrite:false});
       const xrayGroup = new T.Group();
@@ -59,11 +63,16 @@
         cavity.color.copy(text).lerp(pink,.11).lerp(panel,.11);
         signal.color.copy(cssColor('--viz-series-2'));
         focusMaterial.color.copy(cssColor('--viz-series-1'));
+        facialMaterial.color.copy(cssColor('--viz-series-1'));
+        eyeMaterial.color.copy(panel).lerp(text,.12);
+        irisMaterial.color.copy(cssColor('--viz-series-1'));
+        lipDetailMaterial.color.copy(pink).lerp(panel,.1);
         if (cinematic) {
           soft.color.set('#1f5e70'); cut.color.set('#3b9db2'); mucosa.color.set('#f16d9a');
           ivory.color.set('#9ad9e5'); muscle.color.set('#62d8ca'); tendon.color.set('#d875a2');
           cavity.color.set('#0f2932'); signal.color.set('#f4c978'); focusMaterial.color.set('#f5d7a0');
           xrayMaterial.color.set('#74c5db'); xrayLineMaterial.color.set('#9edcf0');
+          facialMaterial.color.set('#276274'); eyeMaterial.color.set('#d2f3f5'); irisMaterial.color.set('#1d91ad'); lipDetailMaterial.color.set('#f181aa');
         }
       }
       function light(scene) {
@@ -124,6 +133,28 @@
       const lowerGum = ellipsoid(overview,soft,[95,110,-7],[17,7,12]);
       const jaw = ellipsoid(overview,cut,[135,130,-11],[55,8,13]);
       jaw.rotation.z = -.26;
+
+      // Facial landmarks make the x-ray view read as a human profile while the moving parts
+      // remain the educational lips, tongue and airway model below.
+      const faceDetails = new T.Group();
+      faceDetails.visible = false;
+      overview.add(faceDetails);
+      const noseBridge = ellipsoid(faceDetails,facialMaterial,[96,61,-3],[20,10,15]);
+      const nose = new T.Mesh(new T.ConeGeometry(10,32,20),facialMaterial);
+      nose.position.copy(v(79,68,-1)); nose.rotation.z=Math.PI/2; faceDetails.add(nose);
+      const nostril = new T.Mesh(new T.TorusGeometry(3.3,.65,8,20),xrayMaterial);
+      nostril.position.copy(v(65,73,9)); faceDetails.add(nostril);
+      const eyeSocket = new T.Mesh(new T.TorusGeometry(14,1.1,12,28),xrayMaterial);
+      eyeSocket.position.copy(v(121,58,7)); eyeSocket.scale.x=1.22; faceDetails.add(eyeSocket);
+      const eye = ellipsoid(faceDetails,eyeMaterial,[116,59,8],[10,7.5,8]);
+      const iris = ellipsoid(faceDetails,irisMaterial,[108,59,14],[3.2,4.4,1.4]);
+      const brow = new T.Mesh(new T.TorusGeometry(16,.8,8,28,Math.PI),xrayMaterial);
+      brow.position.copy(v(120,48,7)); brow.rotation.z=.20; faceDetails.add(brow);
+      const upperLipRidge = ellipsoid(faceDetails,lipDetailMaterial,[77,84,13],[11,2.3,4.8]);
+      const lowerLipRidge = ellipsoid(faceDetails,lipDetailMaterial,[77,106,13],[11,2.7,5.4]);
+      const mouthCorner = ellipsoid(faceDetails,lipDetailMaterial,[84,96,12],[3.5,3.5,3.5]);
+      const tongueTip = ellipsoid(faceDetails,muscle,[78,106,8],[12,5,8]);
+      const tongueRidge = ellipsoid(faceDetails,facialMaterial,[123,99,13],[33,1.1,1.4]);
 
       // A separate, low-opacity wireframe silhouette is only shown in 3D video mode.
       // It is an educational x-ray cue, not an anatomical measurement or scan.
@@ -221,6 +252,15 @@
         lowerLip.position.set(lipX,-lipY-4,1);
         upperLip.scale.z = lowerLip.scale.z = 12-4.5*round;
         upperLip.scale.x = lowerLip.scale.x = 10+2*round;
+        upperLipRidge.position.set(lipX-2,-85,13);
+        upperLipRidge.scale.set(10+2*round,2.2,4.8-1.3*round);
+        lowerLipRidge.position.set(lipX-2,-lipY-4,13);
+        lowerLipRidge.scale.set(10+2*round,2.7,5.4-1.4*round);
+        mouthCorner.position.set(lipX+4,-(lipY+88)/2,12);
+        tongueTip.position.copy(v(tipX+2,tipY+5,8));
+        tongueTip.scale.set(11,4.4,7.4);
+        tongueRidge.position.copy(v((tipX+backX)/2+7,(tipY+backY)/2+5,13));
+        tongueRidge.rotation.z=Math.atan2(-(tipY-backY),tipX-backX);
         upperGum.position.x = (lipX+100)/2;
         lowerGum.position.set((lipX+107)/2,-lipY-7,-7);
         upperGum.scale.x = 15+3*round;
@@ -244,6 +284,7 @@
 
         const pulse = voiced && !still ? Math.sin(step*2*Math.PI*4.5) : 0;
         xrayGroup.rotation.y = cinematic ? .08*Math.sin(step*.8) : 0;
+        faceDetails.rotation.y = xrayGroup.rotation.y;
         xrayMaterial.opacity = cinematic ? .18 + .06*(voiced ? .5+.5*Math.sin(step*12)**2 : 0) : .22;
         const gap = Math.max(.09,glottalGap+.87*pulse);
         attachments.forEach((mesh,index) => { mesh.position.x = folds[index].side * (4+.36*gap); });
@@ -285,6 +326,7 @@
       function setCinematic(next) {
         cinematic = Boolean(next);
         xrayGroup.visible = cinematic;
+        faceDetails.visible = cinematic;
         renderers.forEach(renderer=>renderer.setClearColor(cinematic ? 0x05090d : 0x000000,cinematic ? 1 : 0));
         palette();
         if (last) draw(last);
