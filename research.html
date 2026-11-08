@@ -98,6 +98,7 @@
 
   <section class="principles" aria-labelledby="ai">
     <h2 id="ai">06 · 한국어를 학습한 AI 모델은 무엇이 다른가</h2>
+    <p><a href="ai-research.html"><strong>논문 다섯 편을 그림으로 깊이 읽기 →</strong></a> 토큰화, 자모 표현, 한국어 사전학습, 원문 평가에서 어떤 차이를 관찰했는지 실험별로 살펴봅니다.</p>
     <p>차이는 세 층에서 생깁니다. <strong>문자 표현</strong>은 자모·음절·바이트 중 무엇을 기본 단위로 삼는가, <strong>토큰화</strong>는 조사와 어미가 붙는 한국어를 어떻게 나누는가, <strong>학습 자료</strong>는 높임말·구어·전문 지식·한국 문화 같은 사용 맥락을 얼마나 담는가의 문제입니다.</p>
     <div class="research-table-wrap">
       <table class="research-table" role="table" aria-label="한국어 인공지능 연구 비교">
@@ -105,9 +106,9 @@
         <tbody>
           <tr><th scope="row"><a href="https://aclanthology.org/2020.aacl-main.17/">Park 등 · 2020</a></th><td>형태소를 나눈 뒤 BPE를 적용한 방식이 한영 번역과 여러 한국어 이해 과제에서 유리했습니다.</td><td>한국어 독해 질문응답 과제 KorQuAD에서는 BPE만 적용한 방식이 가장 좋은 결과를 냈습니다.</td></tr>
           <tr><th scope="row"><a href="https://aclanthology.org/2020.lrec-1.429/">Moon·Okazaki · 2020</a></th><td>자모의 재사용을 활용해 다국어 토크나이저에서 한국어에 필요한 어휘 항목을 줄이는 방식을 제안했습니다.</td><td>어휘 크기와 실제 문장의 토큰 수는 별도의 지표입니다.</td></tr>
-          <tr><th scope="row"><a href="https://aclanthology.org/2023.eacl-main.172/">Cognetta 등 · 2023</a></th><td>초성·중성·종성 표현을 한 음절 위치에 묶어, 번역 실험에서 임베딩 매개변수를 약 1,140만 개에서 3만 6천 개로 줄이면서 기준 모델의 번역 품질을 유지했습니다.</td><td>이 수치는 해당 실험의 임베딩 부분입니다. 전체 모델 규모와 다른 과제의 성능은 따로 측정합니다.</td></tr>
+          <tr><th scope="row"><a href="https://aclanthology.org/2023.eacl-main.172/">Cognetta 등 · 2023</a></th><td>초성·중성·종성을 한 음절 위치에 묶어, 영한 뉴스 번역에서 한국어 임베딩·출력층 매개변수를 약 1,140만 개에서 3만 6천 개로 줄였고 번역 점수는 비슷했습니다.</td><td>수치는 한국어 임베딩과 출력층의 합계입니다. 전체 모델 규모와 다른 과제의 성능은 따로 측정합니다.</td></tr>
           <tr><th scope="row"><a href="https://aclanthology.org/2021.emnlp-main.274/">HyperCLOVA · 2021</a></th><td>한국어 중심 말뭉치와 한국어에 맞춘 토큰화를 결합해 한국어 과제를 실험했습니다.</td><td>학습 자료, 토크나이저, 모델 규모의 영향을 분리하려면 조건을 통제한 비교가 필요합니다.</td></tr>
-          <tr><th scope="row"><a href="https://aclanthology.org/2025.naacl-long.206/">KMMLU · 2025</a></th><td>한국어로 작성된 시험에서 45개 분야 35,030문항을 모아 한국의 언어·문화적 맥락을 평가했습니다.</td><td>객관식 지식 점수와 대화 자연스러움, 존댓말 일관성, 생성문 정확도는 다른 능력입니다.</td></tr>
+          <tr><th scope="row"><a href="https://aclanthology.org/2025.naacl-long.206/">KMMLU · 2025</a></th><td>한국어 원문 시험에서 뽑은 평가용 45개 분야 35,030문항으로 지식을 평가했습니다. 한국 특화 1,305문항도 별도로 분석했습니다.</td><td>객관식 지식 점수와 대화 자연스러움, 존댓말 일관성, 생성문 정확도는 다른 능력입니다.</td></tr>
         </tbody>
       </table>
     </div>

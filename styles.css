@@ -174,3 +174,19 @@ a { color: var(--viz-series-1); }
   .atlas-history-sources { display: flex !important; flex-wrap: wrap; gap: .6rem; }
 }
 
+
+.ai-papers { max-width: 72rem; }
+.ai-paper { padding-block-end: 1.25rem; border-bottom: 1px solid var(--edge); }
+.ai-paper h2 { scroll-margin-top: 1rem; }
+.ai-paper-kicker { font-size: .85rem; font-weight: 700; color: var(--muted); margin-bottom: .25rem; }
+.ai-paper-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1rem, 3vw, 2rem); align-items: start; }
+.ai-paper figure { margin: 0; }
+.ai-paper img { display: block; width: 100%; height: auto; border-radius: .8rem; }
+.ai-paper figcaption { font-size: .86rem; color: var(--muted); padding-top: .4rem; }
+.ai-paper dl, .ai-paper dd { margin: 0; }
+.ai-paper dl { display: grid; gap: .7rem; }
+.ai-paper dt { font-weight: 750; }
+@media (max-width: 48rem) {
+  .ai-paper-grid { grid-template-columns: minmax(0, 1fr); }
+  .atlas-controls label:last-child { grid-column: 1 / -1; }
+}

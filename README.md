@@ -64,6 +64,7 @@ GitHub Pages는 저장소의 **Settings → Pages**에서 **Deploy from a branch
 | `world-map.svg` | 교육부 집계에 따른 제2외국어 채택 지도 |
 | `research.html`, `research.js`, `research-map.svg` | 학술 연구, 대표 언어 위치 지도, 유니코드 조합 실험 |
 | `atlas.html`, `atlas.js`, `atlas-data.js` | 언어 겹치기 지도, 화자·국가 수 그래프, 식민 통치 이후 언어 지위 비교 |
+| `ai-research.html`, `ai-*.svg` | 한국어 AI 논문 5편의 실험 해설과 수치 기반 도해 |
 
 ## 참고 자료
 

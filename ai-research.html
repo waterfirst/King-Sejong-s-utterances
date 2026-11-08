@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="한국어 AI와 한글 토큰화에 관한 논문 다섯 편의 방법과 실험 결과를 그림으로 읽습니다.">
+  <title>한글과 한국어 AI · 논문 깊이 읽기</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="research ai-papers">
+  <header>
+    <a href="research.html#ai">← 한글 학술 연구</a>
+    <h1>한글과 한국어 AI</h1>
+    <p class="intro">문장을 어떻게 나누는지부터 모델이 한국의 제도와 문화를 얼마나 이해하는지까지, 다섯 편의 논문을 실험 조건과 함께 읽습니다.</p>
+    <nav class="page-nav" aria-label="논문 목차">
+      <a href="#park">형태소+BPE</a><a href="#jpe">자모 쌍 인코딩</a><a href="#threehot">Three-hot</a><a href="#hyperclova">HyperCLOVA</a><a href="#kmmlu">KMMLU</a>
+    </nav>
+  </header>
+
+  <article class="principles ai-paper" aria-labelledby="park">
+    <header>
+      <p class="ai-paper-kicker">01 · 토큰화 · Park 등 · AACL 2020</p>
+      <h2 id="park">조사와 어미를 어디에서 나눌까?</h2>
+    </header>
+    <p>한국어는 ‘학교’, ‘학교에’, ‘학교에서’처럼 어근에 조사가 붙습니다. 형태소 분석은 이런 경계를 먼저 찾고, BPE는 주어진 경계 안에서 자주 이웃한 단위를 합쳐 하위 단어를 만듭니다.</p>
+    <div class="ai-paper-grid">
+      <figure>
+        <img src="ai-park.svg" width="520" height="270" alt="형태소 경계 예시 학교와 에서. BPE와 형태소+BPE의 한영 BLEU는 38.69와 40.34, 영한은 36.98과 40.41.">
+        <figcaption>그림 1. 한국어 어휘 32K에서 두 방식의 번역 점수를 비교합니다. BLEU는 번역과 참조문 사이의 표현 일치를 평가하는 지표입니다.</figcaption>
+      </figure>
+      <dl>
+        <div><dt>실험 방법</dt><dd>AI Hub 뉴스 한영 번역에서는 한국어 쪽 토큰화와 어휘 크기를 바꾸되 영어 쪽은 32K BPE로 고정했습니다. 자연어 이해는 토큰화 방식별로 BERT-Base를 사전학습한 뒤 문장 관계, 감정, 독해 등의 과제에 맞춰 각각 미세 조정했습니다.</dd></div>
+        <div><dt>관찰 결과</dt><dd>같은 한국어 32K 어휘에서 형태소+BPE는 BPE만 썼을 때보다 한→영 BLEU 38.69→40.34, 영→한 36.98→40.41을 기록했습니다. 반면 독해 KorQuAD 개발 세트에서는 BPE 64K가 F1 86.66으로 가장 높았습니다.</dd></div>
+        <div><dt>해석 범위</dt><dd>번역 BLEU와 독해 F1은 다른 지표입니다. 이 결과는 뉴스 번역과 논문에서 사용한 BERT 실험의 조건에서 토큰화 선택이 과제마다 달라질 수 있음을 보여 줍니다.</dd></div>
+      </dl>
+    </div>
+    <p class="sources">그림은 원문의 실험 수치와 개념을 바탕으로 새로 그렸습니다. <a href="https://aclanthology.org/2020.aacl-main.17/">Park 등 · AACL 2020 원문</a> · §4–5 · 표 3·6</p>
+  </article>
+
+  <article class="principles ai-paper" aria-labelledby="jpe">
+    <header>
+      <p class="ai-paper-kicker">02 · 어휘 압축 · Moon·Okazaki · LREC 2020</p>
+      <h2 id="jpe">음절 아래의 자모를 재사용할 수 있을까?</h2>
+    </header>
+    <p>‘간’과 ‘갈’을 각각 외우는 대신, 둘에 공통인 ㄱ·ㅏ를 재사용할 수 있습니다. 자모 쌍 인코딩(JPE)은 한글을 자모로 풀어 SentencePiece가 음절 내부와 경계 주변의 반복 패턴을 학습하게 합니다.</p>
+    <div class="ai-paper-grid">
+      <figure>
+        <img src="ai-jpe.svg" width="520" height="270" alt="간과 갈은 초성 ㄱ과 중성 ㅏ를 공유. 영화 리뷰 미등록 문장 비율은 기본 35.12%, 정렬 9.51%, 오토마톤 7.78%.">
+        <figcaption>그림 2. 자모 공유 예시와 영화 리뷰의 미등록 문장 비율을 함께 보여 줍니다. 막대가 짧을수록 미등록 항목이 적습니다.</figcaption>
+      </figure>
+      <dl>
+        <div><dt>실험 방법</dt><dd>정렬 방식은 받침 없는 음절에 자리표를 넣어 복원을 단순하게 만듭니다. 오토마톤 방식은 일부 자리표를 생략하고 상태 전이로 음절을 복원합니다. 논문의 SentencePiece 실험은 위키와 영화 리뷰에서 모은 문장으로 어휘를 학습하고, 여러 텍스트에서 미등록 항목이 생기는 빈도를 비교했습니다.</dd></div>
+        <div><dt>관찰 결과</dt><dd>전체 어휘 1,000개 설정에서 미등록 항목이 하나 이상 나온 영화 리뷰 문장은 기본 방식 35.12%, 정렬 방식 9.51%, 오토마톤 방식 7.78%였습니다. 같은 어휘 예산에서 자모 재사용으로 더 많은 문자열을 처리한 사례입니다.</dd></div>
+        <div><dt>해석 범위</dt><dd>어휘표에 저장한 항목 수, 한 문장을 처리하는 데 든 토큰 수, 모델의 과제 정확도는 각각 측정해야 합니다. 이 그래프는 미등록 항목이 생긴 문장의 비율만 보여 줍니다.</dd></div>
+      </dl>
+    </div>
+    <p class="sources">그림은 원문의 실험 수치와 개념을 바탕으로 새로 그렸습니다. <a href="https://aclanthology.org/2020.lrec-1.429/">Moon·Okazaki · LREC 2020 원문</a> · §4–5 · 표 5</p>
+  </article>
+
+  <article class="principles ai-paper" aria-labelledby="threehot">
+    <header>
+      <p class="ai-paper-kicker">03 · 모델 구조 · Cognetta 등 · EACL 2023</p>
+      <h2 id="threehot">세 자모를 써도 음절은 한 자리에</h2>
+    </header>
+    <p>음절마다 벡터를 만들면 현대 한글 음절 11,172개를 담아야 합니다. 초성·중성·종성을 세 위치로 풀어 쓰면 어휘는 작아지지만 문장은 길어집니다. Three-hot은 자모 벡터를 재사용하면서 세 자모를 한 음절 위치에서 처리합니다.</p>
+    <div class="ai-paper-grid">
+      <figure>
+        <img src="ai-threehot.svg" width="520" height="270" alt="값을 초성 ㄱ, 중성 ㅏ, 종성 ㅄ으로 한 위치에 묶음. 음절 방식 1,140만, 공유 three-hot 3만 6천 매개변수.">
+        <figcaption>그림 3. 예시 음절 ‘값’의 세 자모를 한 자리에 묶습니다. 아래 숫자는 표 2의 한국어 임베딩·출력층 합계입니다.</figcaption>
+      </figure>
+      <dl>
+        <div><dt>실험 방법</dt><dd>입력에서는 세 자모의 벡터를 합합니다. 출력에서는 같은 음절 안에서 앞서 고른 자모에 조건을 걸어 다음 자모를 고릅니다. 저자들은 입력과 출력의 가중치를 공유하고, 자모를 잇는 신경망에 대각행렬을 써서 추가 매개변수를 줄였습니다.</dd></div>
+        <div><dt>관찰 결과</dt><dd>영→한 뉴스 번역에서 비공유 음절 기준 모델의 한국어 쪽 임베딩·출력층 합계는 1,140만 개였습니다. 공유 three-hot의 초성→중성→종성 설정은 3만 6천 개였고, BLEU는 14.1과 14.0, chrF는 38.1과 38.0으로 비슷했습니다.</dd></div>
+        <div><dt>해석 범위</dt><dd>매개변수 수치는 한국어 출력 쪽의 임베딩과 디코딩에 해당합니다. 같은 논문에서 자모를 서로 독립적으로 예측한 방식은 BLEU 8.3(공유 설정)에 그쳐, 자모 사이의 조건부 관계가 중요했습니다.</dd></div>
+      </dl>
+    </div>
+    <p class="sources">그림은 원문의 실험 수치와 개념을 바탕으로 새로 그렸습니다. <a href="https://aclanthology.org/2023.eacl-main.172/">Cognetta 등 · EACL 2023 원문</a> · §2–5 · 표 2</p>
+  </article>
+
+  <article class="principles ai-paper" aria-labelledby="hyperclova">
+    <header>
+      <p class="ai-paper-kicker">04 · 사전학습 · Kim 등 · EMNLP 2021</p>
+      <h2 id="hyperclova">한국어 데이터와 토큰화가 각각 하는 일</h2>
+    </header>
+    <p>2021년 HyperCLOVA는 블로그, 커뮤니티, 뉴스, 댓글 등으로 구성한 한국어 중심 말뭉치를 사용했습니다. 논문 표 1의 전체 말뭉치는 5,618억 토큰, 가장 큰 모델은 820억 매개변수였습니다.</p>
+    <div class="ai-paper-grid">
+      <figure>
+        <img src="ai-hyperclova.svg" width="520" height="270" alt="일반 바이트 BPE 대비 형태소 기반 BPE에서 KorQuAD F1은 70.34에서 72.98, 한국어에서 영어 번역 BLEU는 4.61에서 3.83.">
+        <figcaption>그림 4. 13억 매개변수 모델에서 일반 바이트 BPE와 형태소 기반 바이트 BPE를 비교했습니다.</figcaption>
+      </figure>
+      <dl>
+        <div><dt>실험 방법</dt><dd>형태소를 고려한 바이트 BPE는 띄어쓰기와 형태소 경계로 먼저 나눈 조각 안에서 바이트 결합을 학습합니다. 연구진은 13억 매개변수 모델에서 형태소 기반 바이트 BPE, 일반 바이트 BPE, 문자 BPE를 비교했습니다.</dd></div>
+        <div><dt>관찰 결과</dt><dd>KorQuAD F1은 일반 바이트 BPE 70.34에서 형태소 기반 72.98로 올랐습니다. 같은 표에서 한→영 BLEU는 4.61에서 3.83으로 내려갔습니다. 그림은 평가 점수의 단위와 과제를 나눠 표시합니다.</dd></div>
+        <div><dt>해석 범위</dt><dd>13억 모델의 토큰화 비교는 820억 모델 전체의 효과와 구분해야 합니다. 데이터 출처, 토큰화, 모델 규모가 함께 바뀌는 모델 간 비교에서는 개별 요인의 효과를 따로 추정하기 어렵습니다.</dd></div>
+      </dl>
+    </div>
+    <p class="sources">그림은 원문의 실험 수치와 개념을 바탕으로 새로 그렸습니다. <a href="https://aclanthology.org/2021.emnlp-main.274/">Kim 등 · EMNLP 2021 원문</a> · §3·§4.4 · 표 1·2·6</p>
+  </article>
+
+  <article class="principles ai-paper" aria-labelledby="kmmlu">
+    <header>
+      <p class="ai-paper-kicker">05 · 한국어 평가 · Son 등 · NAACL 2025</p>
+      <h2 id="kmmlu">한국어 문장을 읽는 능력과 한국을 아는 능력</h2>
+    </header>
+    <p>KMMLU는 번역 문제 대신 한국어로 출제된 자격시험·적성시험 등의 문항을 모았습니다. 논문의 평가용 시험 세트는 인문·사회와 과학·공학 등을 아우르는 45개 분야 35,030개 객관식 문항입니다.</p>
+    <div class="ai-paper-grid">
+      <figure>
+        <img src="ai-kmmlu.svg" width="520" height="270" alt="GPT-4 정확도 전체 59.95%, 한국 특화 51.21%. HyperCLOVA X 전체 53.40%, 한국 특화 50.00%.">
+        <figcaption>그림 5. 두 모델의 KMMLU 전체 시험 세트와 한국 특화 문항 묶음 정확도를 나란히 그렸습니다.</figcaption>
+      </figure>
+      <dl>
+        <div><dt>실험 방법</dt><dd>연구진은 중복이나 형식 오류를 걸러 내고 답지를 네 개로 맞췄습니다. 별도로 1,305문항을 선별한 KMMLU-KOR에서는 한국의 역사·제도처럼 지역 맥락이 필요한 지식을 살폈습니다.</dd></div>
+        <div><dt>관찰 결과</dt><dd>논문에서 GPT-4의 정확도는 전체 59.95%에서 한국 특화 문항 51.21%로 8.74%p 낮아졌습니다. HyperCLOVA X는 53.40%에서 50.00%로 3.40%p 낮아졌습니다. 두 모델의 격차는 한국 특화 문항에서 좁아졌습니다.</dd></div>
+        <div><dt>해석 범위</dt><dd>서로 다른 난이도와 구성을 가진 문항 묶음의 비교입니다. 점수 차이는 당시 평가한 모델에 해당하며, 한국어 사전학습만의 효과나 존댓말·대화 품질을 직접 측정하지는 않습니다.</dd></div>
+      </dl>
+    </div>
+    <p class="sources">그림은 원문의 실험 수치와 개념을 바탕으로 새로 그렸습니다. <a href="https://aclanthology.org/2025.naacl-long.206/">Son 등 · NAACL 2025 원문</a> · §3·§6.2 · 표 2·6</p>
+  </article>
+
+  <section class="principles" aria-labelledby="compare-ai">
+    <h2 id="compare-ai">같은 모델을 비교하려면 무엇을 재야 할까?</h2>
+    <p>형태소 경계는 <strong>문장을 자르는 기준</strong>, 자모 공유는 <strong>문자를 저장하고 예측하는 방식</strong>, 한국어 원문 시험은 <strong>모델을 평가하는 기준</strong>입니다. 같은 문장을 같은 모델 조건에서 비교한다면 어휘 항목 수, 문장당 토큰 수, 임베딩·출력층 규모, 과제 점수를 따로 기록할 수 있습니다.</p>
+    <p><a href="research.html#keyboard">유니코드에서 한글이 어떻게 분해되는지 실험하기 →</a></p>
+  </section>
+</main>
+</body>
+</html>
