@@ -26,6 +26,11 @@
       const cavity = material(.88);
       const signal = new T.MeshBasicMaterial();
       const focusMaterial = new T.MeshBasicMaterial({depthTest:false});
+      const xrayMaterial = new T.MeshBasicMaterial({color:0x7bc8dc,wireframe:true,transparent:true,opacity:.22,depthWrite:false});
+      const xrayLineMaterial = new T.LineBasicMaterial({color:0x91d8ea,transparent:true,opacity:.45,depthWrite:false});
+      const xrayGroup = new T.Group();
+      xrayGroup.visible = false;
+      overview.add(xrayGroup);
       const swatch = document.createElement('canvas');
       swatch.width = swatch.height = 1;
       const painter = swatch.getContext('2d', {willReadFrequently:true});
@@ -54,6 +59,12 @@
         cavity.color.copy(text).lerp(pink,.11).lerp(panel,.11);
         signal.color.copy(cssColor('--viz-series-2'));
         focusMaterial.color.copy(cssColor('--viz-series-1'));
+        if (cinematic) {
+          soft.color.set('#1f5e70'); cut.color.set('#3b9db2'); mucosa.color.set('#f16d9a');
+          ivory.color.set('#9ad9e5'); muscle.color.set('#62d8ca'); tendon.color.set('#d875a2');
+          cavity.color.set('#0f2932'); signal.color.set('#f4c978'); focusMaterial.color.set('#f5d7a0');
+          xrayMaterial.color.set('#74c5db'); xrayLineMaterial.color.set('#9edcf0');
+        }
       }
       function light(scene) {
         scene.add(new T.AmbientLight(0xffffff,.62));
@@ -114,6 +125,23 @@
       const jaw = ellipsoid(overview,cut,[135,130,-11],[55,8,13]);
       jaw.rotation.z = -.26;
 
+      // A separate, low-opacity wireframe silhouette is only shown in 3D video mode.
+      // It is an educational x-ray cue, not an anatomical measurement or scan.
+      const cranium = new T.Mesh(new T.SphereGeometry(1,30,20),xrayMaterial);
+      cranium.position.copy(v(162,82,-23)); cranium.scale.set(92,101,63); xrayGroup.add(cranium);
+      const face = new T.Mesh(new T.SphereGeometry(1,24,16),xrayMaterial);
+      face.position.copy(v(104,99,-18)); face.scale.set(51,65,46); xrayGroup.add(face);
+      const xrayCurve = points => new T.Line(new T.BufferGeometry().setFromPoints(curve(points).getPoints(70)),xrayLineMaterial);
+      xrayGroup.add(xrayCurve([[75,57,-25],[62,69,-25],[62,103,-25],[77,129,-25],[110,145,-25],[166,155,-25],[216,153,-25],[250,143,-25]]));
+      xrayGroup.add(xrayCurve([[91,52,-25],[131,35,-25],[181,35,-25],[227,54,-25],[246,78,-25]]));
+      xrayGroup.add(xrayCurve([[92,116,-24],[123,137,-24],[171,146,-24],[207,142,-24]]));
+      const vertebrae = new T.Group();
+      for (let i=0;i<6;i++) {
+        const ring = new T.Mesh(new T.TorusGeometry(9.5,1,8,20),xrayMaterial);
+        ring.position.copy(v(241,137+i*13,-20)); ring.rotation.x=Math.PI/2; vertebrae.add(ring);
+      }
+      xrayGroup.add(vertebrae);
+
       function surface(rows, sides, scene, mat) {
         const geometry = new T.BufferGeometry();
         const positions = new T.Float32BufferAttribute(new Float32Array((rows+1)*(sides+1)*3),3);
@@ -155,6 +183,7 @@
         camera.updateProjectionMatrix();
       }
       let last;
+      let cinematic = false;
       function draw(state) {
         last = state;
         const {tongue, lipX, lipY, round, contact, nasal, velumOpening, lateral, air, strong, voiced, glottalGap, x, y, zoom, step, still} = state;
@@ -194,6 +223,8 @@
         });
 
         const pulse = voiced && !still ? Math.sin(step*2*Math.PI*4.5) : 0;
+        xrayGroup.rotation.y = cinematic ? .08*Math.sin(step*.8) : 0;
+        xrayMaterial.opacity = cinematic ? .18 + .06*(voiced ? .5+.5*Math.sin(step*12)**2 : 0) : .22;
         const gap = Math.max(.09,glottalGap+.87*pulse);
         attachments.forEach((mesh,index) => { mesh.position.x = folds[index].side * (4+.36*gap); });
         for (const {side,deform} of folds) {
@@ -226,6 +257,13 @@
       palette();
       views.hidden = false;
       root.querySelector('.stage').setAttribute('hidden','');
-      return {draw};
+      function setCinematic(next) {
+        cinematic = Boolean(next);
+        xrayGroup.visible = cinematic;
+        renderers.forEach(renderer=>renderer.setClearColor(cinematic ? 0x05090d : 0x000000,cinematic ? 1 : 0));
+        palette();
+        if (last) draw(last);
+      }
+      return {draw,setCinematic};
     };
   })();

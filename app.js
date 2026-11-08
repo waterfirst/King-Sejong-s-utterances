@@ -501,6 +501,7 @@
     const cinemaButton=el('cinema');
     function setCinema(on) {
       root.classList.toggle('cinema-mode',on);
+      scene?.setCinematic(on);
       cinemaButton.setAttribute('aria-pressed',String(on));
       cinemaButton.textContent=on ? '3D 영상 모드 나가기' : '3D 영상 모드';
       if (on && document.fullscreenElement!==root) root.requestFullscreen?.().catch(()=>{});
