@@ -142,7 +142,7 @@ a { color: var(--viz-series-1); }
 .atlas { max-width: 72rem; }
 .atlas-panel { gap: .8rem; }
 .atlas-controls, .atlas-charts { display: grid; gap: .8rem; }
-.atlas-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.atlas-controls { grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); }
 .atlas-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 .atlas-controls label, .atlas-country-label { display: grid; gap: .25rem; font-weight: 650; }
 .atlas-country-label { justify-self: start; max-width: 100%; }
