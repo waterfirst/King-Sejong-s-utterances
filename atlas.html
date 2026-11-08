@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="나라별 언어를 지도에서 겹쳐 보고, 화자 수와 사용 국가 수, 독립 뒤 식민 통치 언어의 지위를 비교합니다.">
+  <title>세계 언어 지도 · 한글 학술 연구</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="atlas-data.js"></script>
+  <script defer src="atlas.js"></script>
+</head>
+<body>
+<main class="research atlas">
+  <header>
+    <p><a href="index.html">한글 조음 실험실</a> · <a href="research.html#families">한글 학술 연구</a></p>
+    <h1>세계 언어 지도</h1>
+    <p class="intro">가장 많은 사람이 쓰는 언어와 가장 많은 나라에서 쓰이는 언어는 어떻게 다를까요? 지도에 언어를 겹쳐 보고, 식민 통치가 끝난 뒤에도 제국의 언어가 공적인 역할을 맡는지 비교합니다.</p>
+    <nav class="page-nav" aria-label="세계 언어 지도 목차">
+      <a href="#distribution">언어 분포 지도</a><a href="#rankings">화자 수와 국가 수</a><a href="#colonies">제국·식민 통치·독립</a><a href="#atlas-method">자료와 기준</a>
+    </nav>
+  </header>
+  <noscript><p>지도를 조작하고 순위를 보려면 JavaScript를 켜 주세요.</p></noscript>
+
+  <section class="principles" aria-labelledby="distribution">
+    <h2 id="distribution">01 · 언어가 쓰이는 나라를 겹쳐 보기</h2>
+    <p>최대 세 언어를 골라 보세요. 같은 나라가 여러 기준을 충족하면 반투명 색이 겹칩니다. 나라를 누르거나 목록에서 골라 해당 국가의 추정 비중과 공용 지위를 확인할 수 있습니다.</p>
+    <div class="studio atlas-panel">
+      <div class="atlas-controls">
+        <label>언어 1<select id="atlas-layer-1"></select></label>
+        <label>언어 2<select id="atlas-layer-2"></select></label>
+        <label>언어 3<select id="atlas-layer-3"></select></label>
+        <label>색칠 기준<select id="atlas-criterion">
+          <option value="1">인구의 1% 이상</option><option value="0.1">인구의 0.1% 이상</option><option value="5">인구의 5% 이상</option>
+          <option value="official">국가 공용·사실상 공용</option>
+        </select></label>
+      </div>
+      <svg id="atlas-language-map" class="atlas-map" viewBox="0 0 720 292" role="img" aria-label="선택한 언어의 국가별 분포"></svg>
+      <ul class="atlas-legend" id="atlas-language-legend" aria-label="언어별 색과 국가 수"></ul>
+      <label class="atlas-country-label">나라별 상세 보기<select id="atlas-country"></select></label>
+      <div id="atlas-country-detail" class="atlas-detail" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="principles" aria-labelledby="rankings">
+    <h2 id="rankings">02 · 화자 수와 사용 국가 수</h2>
+    <div class="atlas-charts">
+      <article class="studio atlas-panel">
+        <h3>세계 화자 수 · 2026년 추정</h3>
+        <p>모어와 제2언어를 합하면 <strong>영어 약 14.9억 명</strong>, 모어만 보면 <strong>관화 약 9.88억 명</strong>이 가장 많습니다.</p>
+        <ul class="atlas-legend"><li><span class="atlas-swatch speaker-native"></span>모어</li><li><span class="atlas-swatch speaker-second"></span>제2언어</li></ul>
+        <ul id="atlas-speakers" class="atlas-bars" aria-label="영어와 관화의 모어 및 제2언어 화자 수"></ul>
+        <p class="source-note">단위는 억 명입니다. 두 언어의 공개 추정치를 반올림했습니다. <a href="https://shop.ethnologue.com/products/2026-ethnologue-200">Ethnologue 2026</a> · <a href="https://qz.com/most-spoken-languages-in-the-world-2026">공개 수치</a></p>
+      </article>
+      <article class="studio atlas-panel">
+        <h3>사용 국가 수 · 유엔 회원국 193곳</h3>
+        <p id="atlas-rank-summary" aria-live="polite"></p>
+        <ul id="atlas-usage-ranks" class="atlas-bars" aria-label="선택한 인구 비중 기준 상위 언어"></ul>
+        <h3>국가 공용·사실상 공용 지위</h3>
+        <ul id="atlas-official-ranks" class="atlas-bars" aria-label="국가 공용 및 사실상 공용 지위 기준 상위 언어"></ul>
+        <p class="source-note">막대는 각 그래프에서 1위 언어의 국가 수를 기준으로 그렸습니다. 수치는 Unicode CLDR 49를 집계한 결과입니다.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="principles" aria-labelledby="colonies">
+    <h2 id="colonies">03 · 제국에서 독립한 뒤, 언어는 어떻게 남았을까?</h2>
+    <p>같은 제국의 통치를 받았어도 독립 뒤 언어 정책은 달라졌습니다. 인도는 연방 공무에 영어를 계속 쓰고, 미얀마는 헌법에 미얀마어를 공용어로 명시합니다. 알제리에서처럼 제국 언어가 사회에서 쓰이더라도 국가 공용 지위는 없을 수 있습니다.</p>
+    <div class="studio atlas-panel">
+      <label class="atlas-country-label">과거 통치국<select id="atlas-empire"></select></label>
+      <svg id="atlas-history-map" class="atlas-map" viewBox="0 0 720 292" role="img" aria-label="식민 통치와 독립 사례 및 현재 언어의 공적 지위"></svg>
+      <ul id="atlas-history-legend" class="atlas-legend" aria-live="polite"></ul>
+      <div id="atlas-history-detail" class="atlas-detail" aria-live="polite">지도에서 색칠된 나라를 누르면 독립과 언어 지위가 표시됩니다. 아래 표에서도 같은 내용을 확인할 수 있습니다.</div>
+      <h3>선택한 사례의 언어 지위 비교</h3>
+      <ul id="atlas-history-bars" class="atlas-bars" aria-label="국가 공적 지위가 있는 사례와 없는 사례의 수"></ul>
+    </div>
+    <div class="research-table-wrap">
+      <table class="research-table atlas-history-table" role="table">
+        <caption>제국·식민 통치·독립과 오늘날의 언어 지위</caption>
+        <thead><tr><th scope="col">나라</th><th scope="col">통치국·언어</th><th scope="col">통치에서 독립까지</th><th scope="col">오늘날의 지위</th><th scope="col">자료</th></tr></thead>
+        <tbody id="atlas-history-rows"></tbody>
+      </table>
+    </div>
+    <p class="source-note">선별한 비교 사례입니다. 색은 전 제국 언어의 현재 국가 공용 지위 또는 법에 명시된 중앙 공무 사용을 기준으로 나눴습니다. 지역·교육·사회 사용은 사례별 설명에서 확인할 수 있습니다. 지도는 현재 국가 경계를 사용합니다.</p>
+  </section>
+
+  <section class="principles" aria-labelledby="atlas-method">
+    <h2 id="atlas-method">04 · 자료와 집계 기준</h2>
+    <ul>
+      <li>분포는 <a href="https://github.com/unicode-org/cldr-json/blob/49.0.0/cldr-json/cldr-core/supplemental/territoryInfo.json">Unicode CLDR 49의 언어 인구 자료</a>를 사용합니다. 인구 비중은 컴퓨터나 스마트폰을 그 언어로 사용할 수 있을 정도의 기능적 언어 사용을 추정한 값입니다. 한 사람이 여러 언어에 포함될 수 있으며, 자료에 없는 소수 화자 집단도 있습니다. <a href="https://unicode.org/reports/tr35/tr35-info.html#Territory_Information">CLDR 자료 설명</a> · <a href="UNICODE-LICENSE.txt">데이터 라이선스</a></li>
+      <li>국가 수는 <a href="https://www.un.org/en/about-us/member-states">유엔 회원국 193곳</a>이 기준입니다. 동일 기본 언어 코드의 문자 체계별 비중은 중복 합산을 피하기 위해 최댓값을 사용합니다. 공용 국가 수에는 지역 및 소수언어 공용 지위를 제외합니다.</li>
+      <li>국가 경계는 <a href="https://www.naturalearthdata.com/about/terms-of-use/">Natural Earth 공개 도메인 자료</a>를 단순화했습니다. 이 축척에 윤곽이 없는 작은 나라는 위치를 점으로 표시합니다. 국가 채색은 나라 전체에 해당하는 통계이며 국가 안에서의 언어 분포는 다룰 수 없습니다.</li>
+      <li>세계 화자 수 그래프의 관화와 분포 지도의 CLDR 중국어(zh)는 분류 범위가 다릅니다. 화자 수 추정과 나라 수 집계에도 서로 다른 자료가 쓰였습니다.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

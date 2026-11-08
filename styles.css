@@ -138,3 +138,39 @@ a { color: var(--viz-series-1); }
   .actions, .speed, .selector { flex-basis: 100%; }
   .views { grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); }
 }
+
+.atlas { max-width: 72rem; }
+.atlas-panel { gap: .8rem; }
+.atlas-controls, .atlas-charts { display: grid; gap: .8rem; }
+.atlas-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.atlas-charts { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.atlas-controls label, .atlas-country-label { display: grid; gap: .25rem; font-weight: 650; }
+.atlas-country-label { justify-self: start; max-width: 100%; }
+.atlas select { width: 100%; min-width: 0; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--edge); padding: .35rem .4rem; border-radius: .35rem; }
+.atlas-map { display: block; width: 100%; height: auto; background: #ecf4f7; border: 1px solid var(--edge); border-radius: .55rem; }
+.atlas-map-base { fill: #e2e3dc; stroke: #a9b2b5; stroke-width: .55; cursor: pointer; }
+.atlas-map-paint, .atlas-map-selection { pointer-events: none; }
+.atlas-map-selection { fill: none; stroke: #202f39; stroke-width: 1.4; }
+.atlas-legend, .atlas-bars { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.atlas-legend { display: flex; flex-wrap: wrap; gap: .35rem .9rem; }
+.atlas-legend li { display: flex; align-items: center; gap: .35rem; }
+.atlas-swatch { display: inline-block; width: .9rem; height: .9rem; flex: none; border-radius: .2rem; }
+.atlas-detail { min-height: 2.4rem; padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: .45rem; }
+.atlas-detail ul { margin: .2rem 0 0; padding-inline-start: 1.2rem; }
+.atlas-bar { display: grid; grid-template-columns: minmax(4.5rem, 1fr) minmax(3.5rem, 1.7fr) auto; align-items: center; gap: .5rem; font-size: .9rem; }
+.atlas-track { display: flex; height: .75rem; overflow: hidden; border-radius: .2rem; background: var(--edge); }
+.atlas-track span { height: 100%; }
+.speaker-native, .atlas-rank-usage { background: var(--viz-series-1); }
+.speaker-second { background: light-dark(#849cbc, #7190ba); }
+.atlas-rank-official { background: var(--viz-series-2); }
+.atlas-retained { background: #138476; }
+.atlas-other { background: #c66224; }
+.atlas-history-table caption { text-align: start; font-weight: 700; margin-bottom: .5rem; }
+.atlas-history-sources a { display: block; white-space: nowrap; }
+.atlas-history-table td p { margin-top: .25rem; }
+@media (max-width: 48rem) {
+  .atlas-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .atlas-charts { grid-template-columns: 1fr; }
+  .atlas-history-sources { display: flex !important; flex-wrap: wrap; gap: .6rem; }
+}
+
