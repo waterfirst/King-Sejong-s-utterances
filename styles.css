@@ -53,6 +53,18 @@ input[type='range'] { width: 100%; margin: 0; accent-color: var(--viz-series-1);
 .viewport { display: grid; text-align: center; min-width: 0; }
 canvas { display: block; width: 100%; height: clamp(145px, 32vw, 300px); }
 figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
+.cinema-caption { display: none; }
+#hangul-articulation.cinema-mode { max-width: none; min-height: 100vh; padding: clamp(.75rem, 2vw, 1.5rem); background: #101817; color: #f4f0e8; }
+#hangul-articulation.cinema-mode > :not(.studio) { display: none; }
+#hangul-articulation.cinema-mode .studio { min-height: calc(100vh - clamp(1.5rem, 4vw, 3rem)); grid-template-rows: auto auto auto minmax(0, 1fr) auto auto; border-color: #35514b; background: #172321; }
+#hangul-articulation.cinema-mode .views { position: relative; min-height: 0; grid-template-columns: minmax(0, 4fr) minmax(11rem, 1fr); gap: .75rem; padding: .65rem; background: radial-gradient(circle at 52% 45%, #26453e 0, #101817 67%); }
+#hangul-articulation.cinema-mode .viewport:first-child { grid-row: 1; }
+#hangul-articulation.cinema-mode .viewport:last-of-type { grid-row: 1; align-self: end; }
+#hangul-articulation.cinema-mode canvas { height: min(58vh, 43rem); }
+#hangul-articulation.cinema-mode .cinema-caption { position: absolute; z-index: 2; left: 1.4rem; bottom: 1.25rem; display: grid; gap: .15rem; max-width: min(70%, 38rem); padding: .65rem .8rem; border-left: 3px solid #85d6bd; background: rgb(10 18 16 / .74); color: #f4f0e8; pointer-events: none; }
+#hangul-articulation.cinema-mode .cinema-caption strong { font-size: clamp(1.1rem, 2.4vw, 1.75rem); }
+#hangul-articulation.cinema-mode .cinema-caption span { color: #c8d7d0; font-size: .83rem; }
+#hangul-articulation.cinema-mode .stage, #hangul-articulation.cinema-mode .legend { display: none; }
 .stage { width: 100%; max-height: 18rem; }
 .anatomy, .tongue, .air, .focus { vector-effect: non-scaling-stroke; stroke-width: 1.6; }
 .anatomy { fill: none; stroke: var(--muted); }
@@ -137,6 +149,10 @@ a { color: var(--viz-series-1); }
 @media (max-width: 420px) {
   .actions, .speed, .selector { flex-basis: 100%; }
   .views { grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr); }
+  #hangul-articulation.cinema-mode .views { grid-template-columns: minmax(0, 1fr); }
+  #hangul-articulation.cinema-mode .viewport:last-of-type { display: none; }
+  #hangul-articulation.cinema-mode canvas { height: 54vh; }
+  #hangul-articulation.cinema-mode .cinema-caption { max-width: calc(100% - 2rem); left: 1rem; bottom: 1rem; }
 }
 
 .atlas { max-width: 72rem; }

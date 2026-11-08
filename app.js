@@ -245,6 +245,7 @@
         } else el('syllable').textContent = '한글 음절을 입력하세요.';
         el('articulation').textContent = unit ? note : '';
         el('shot').textContent = unit ? speaking ? '카메라 · 입과 목 전체 고정' : `카메라 · ${isCoda ? placeNames[codaPlace] : isVowel ? targetRound || glideRound ? '입술과 혀' : '입 전체' : placeNames[place] ?? '입 전체'}` : '';
+        el('video-caption').textContent = unit ? `${unit.char} · ${phase}` : '한글 음절을 입력하세요.';
       }
       seek.value = t;
       el('time').textContent = `${t.toFixed(2)} / ${duration.toFixed(2)}초`;
@@ -497,6 +498,17 @@
     play.addEventListener('click',()=>{stopAudio();status('');if(active)stop();else start();});
     rateInput.addEventListener('input',()=>{el('rate-value').textContent=`${Number(rateInput.value).toFixed(1)}×`;});
     listenButton.addEventListener('click',listen);
+    const cinemaButton=el('cinema');
+    function setCinema(on) {
+      root.classList.toggle('cinema-mode',on);
+      cinemaButton.setAttribute('aria-pressed',String(on));
+      cinemaButton.textContent=on ? '3D 영상 모드 나가기' : '3D 영상 모드';
+      if (on && document.fullscreenElement!==root) root.requestFullscreen?.().catch(()=>{});
+    }
+    cinemaButton.addEventListener('click',()=>setCinema(!root.classList.contains('cinema-mode')));
+    document.addEventListener('fullscreenchange',()=>{
+      if (document.fullscreenElement!==root && root.classList.contains('cinema-mode')) setCinema(false);
+    });
     let offset=0;
     for (const [group,entries] of historicalGroups) {
       const options=document.createElement('optgroup');
