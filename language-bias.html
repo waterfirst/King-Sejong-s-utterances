@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LLM의 학습 언어 비중, 미국·중국 모델의 문화적 응답, 다국어 평가와 지역 특화 모델을 논문으로 살펴봅니다.">
+  <title>LLM의 언어 편향 · 한글 학술 연구</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="language-bias.js"></script>
+</head>
+<body>
+<main class="research ai-papers">
+  <header>
+    <p><a href="research.html#ai">← 한글 학술 연구</a> · <a href="ai-research.html">한국어 AI 논문 다섯 편</a></p>
+    <h1>LLM은 어떤 언어와 관점으로 답할까?</h1>
+    <p class="intro">영어 중심의 데이터는 어떤 차이를 만들까요? 미국과 중국에서 개발한 모델을 비교하고, 한국어·힌디어·요루바어 같은 언어에서 답변을 평가하는 방법을 살펴봅니다.</p>
+    <nav class="page-nav" aria-label="언어 편향 연구 목차">
+      <a href="#bias-data">영어 중심 데이터</a><a href="#bias-culture">미국·중국 모델</a><a href="#bias-scores">언어별 성능</a><a href="#bias-development">지역별 개발</a><a href="#bias-evaluation">평가 설계</a>
+    </nav>
+  </header>
+
+  <section class="principles" aria-labelledby="bias-data">
+    <h2 id="bias-data">01 · 초기 GPT-3는 얼마나 영어 중심이었나?</h2>
+    <p>OpenAI가 공개한 <strong>2020년 GPT-3 데이터 구성의 추정 단어 수</strong>에서 영어는 92.65%였습니다. 영어가 풍부하면 영어 문장과 그 안에 실린 지식을 더 자주 접할 수 있습니다. 하지만 영어라는 분류에는 미국 이외의 문서도 들어갑니다. 미국 중심의 관점이 나타나는지는 응답을 별도로 조사해야 합니다.</p>
+    <figure class="studio bias-figure">
+      <h3>GPT-3 공개 데이터의 언어 비중</h3>
+      <div class="bias-share" aria-hidden="true"><span style="width:92.65%"></span><span style="width:7.35%"></span></div>
+      <div class="bias-share-labels"><span><strong>92.65%</strong> 영어</span><span><strong>7.35%</strong> 기타 언어 합계</span></div>
+      <figcaption class="source-note">단어 수를 분모로 한 역사적 사례입니다. 토큰 비중, 문서의 작성 국가, 이후 GPT 모델의 데이터 구성은 각각 다른 정보입니다. <a href="https://github.com/openai/gpt-3/blob/master/dataset_statistics/languages_by_word_count.csv">공개 언어별 집계</a></figcaption>
+    </figure>
+    <p><strong>같은 뜻도 토큰 길이가 다를 수 있습니다.</strong> Petrov 등은 같은 내용을 번역한 문장이 토크나이저에 따라 일부 비교에서 최대 15배 다른 토큰 길이를 보였다고 보고했습니다. 이는 해당 문장과 토크나이저의 관측값입니다. Ali 등은 모델을 직접 학습해 영어 중심 토크나이저가 다국어 학습의 비용과 성능에 영향을 줄 수 있으며, 토큰 길이만으로 과제 점수를 예측하기 어렵다고 보고했습니다.</p>
+    <p class="sources"><a href="https://arxiv.org/abs/2305.15425">Petrov 등 · NeurIPS 2023</a> · <a href="https://aclanthology.org/2024.findings-naacl.247/">Ali 등 · Findings of NAACL 2024</a></p>
+  </section>
+
+  <section class="principles" aria-labelledby="bias-culture">
+    <h2 id="bias-culture">02 · 미국과 중국 모델은 어떻게 달랐나?</h2>
+    <div class="research-table-wrap">
+      <table class="research-table" role="table">
+        <caption>문화적 표현, 응답 제한, 학습 설계를 분리한 비교</caption>
+        <thead><tr><th scope="col">비교한 것</th><th scope="col">관찰</th><th scope="col">해석 범위</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">GPT와 ERNIE<br>질문의 언어</th><td>Lu 등은 GPT에서 영어보다 중국어로 질문했을 때 관계의 상호의존성과 맥락을 함께 보는 표현이 늘어나는 경향을 관찰했습니다. Baidu의 ERNIE에서도 같은 방향의 경향을 재현했습니다.</td><td>같은 모델에서도 질문 언어를 바꾸면 결과가 달라집니다. 논문에서 설정한 사회적 판단과 인지 방식 과제의 결과입니다. <a href="https://doi.org/10.1038/s41562-025-02242-1">Nature Human Behaviour · 2025</a></td></tr>
+          <tr><th scope="row">GPT-4o와 DeepSeek-R1<br>지정학 질문</th><td>당시 웹 서비스에 국제정치 관련 질문 50개를 각각 제출하자, 직접 응답 단계에서 GPT-4o는 50개에 답했고 DeepSeek-R1은 6개에 답하지 않았습니다. 대만 등 일부 민감한 주제가 포함됐고, 양쪽 응답이 비슷한 질문도 있었습니다.</td><td>답변을 거부하는지, 사실을 정확히 제시하는지, 어느 관점을 강조하는지는 다른 지표입니다. 연구는 웹 서비스에서 관측했으므로 가중치·후학습·서비스 필터의 영향을 분리하기 어렵습니다. <a href="https://doi.org/10.1057/s41599-026-06577-6">Echoes of power · 2026</a></td></tr>
+          <tr><th scope="row">DeepSeek-V3와 Qwen3<br>공개 기술 보고서</th><td>DeepSeek-V3는 14.8조 토큰으로 사전학습했다고 밝혔습니다. 알리바바의 Qwen3 보고서는 약 36조 토큰과 119개 언어·방언을 공개했습니다.</td><td>두 발표는 서로 다른 모델의 자료입니다. 총량과 언어·방언 개수만으로 중국어·영어 비중이나 각 언어의 답변 품질을 알 수 없습니다. <a href="https://arxiv.org/abs/2412.19437">DeepSeek-V3</a> · <a href="https://arxiv.org/abs/2505.09388">Qwen3</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>별도의 연구에서는 10개 모델에 63개 가치관 문항을 11개 언어로 제시했습니다. 질문 언어와 관점을 명시하는 문구 모두 응답을 바꿨지만, 일부 국가의 설문 응답에 더 가까운 경향은 남았습니다. 설문에서의 유사도는 일상 답변에서의 문화 이해와 구분해야 합니다. <a href="https://aclanthology.org/2026.cl-2.2/">LLMs and Cultural Values · Computational Linguistics 2026</a></p>
+  </section>
+
+  <section class="principles" aria-labelledby="bias-scores">
+    <h2 id="bias-scores">03 · 다른 언어에서는 어느 모델이 더 잘 답했나?</h2>
+    <p>다국어 모델 하나가 여러 언어를 처리할 수 있습니다. 어느 모델이 잘 답하는지는 질문 언어와 과제를 함께 지정해야 비교할 수 있습니다. 아래 그래프는 같은 논문의 같은 과제에서 비교한 여섯 모델의 결과입니다.</p>
+    <div class="studio bias-figure">
+      <div class="bias-controls">
+        <label>질문 언어<select id="bias-language">
+          <option value="0">영어</option><option value="1">프랑스어</option><option value="2">스페인어</option><option value="3">아랍어</option><option value="4">힌디어</option><option value="5">요루바어</option>
+        </select></label>
+        <label>평가 과제<select id="bias-task">
+          <option value="instructions">지시 이행 · CL-IFEval</option><option value="math">수학 추론 · CL-GSMSym</option>
+        </select></label>
+      </div>
+      <p id="bias-summary" aria-live="polite"></p>
+      <ul id="bias-chart" class="bias-bars" aria-label="선택한 언어와 과제의 모델별 점수"></ul>
+      <p id="bias-metric" class="source-note"></p>
+      <noscript><p>언어와 과제를 바꾸려면 JavaScript를 켜 주세요. 전체 수치는 아래 논문의 표 9·11에서 볼 수 있습니다.</p></noscript>
+    </div>
+    <p>예를 들어 힌디어 지시 이행에서는 Qwen3-8B 49.87%와 Aya Expanse 32B 49.86%가 표시 정밀도에서 거의 같습니다. 힌디어 수학에서는 Aya Expanse 71.60%, Qwen3 59.40%였습니다. 요루바어 지시 이행은 비교 모델 중 최고 수치인 Gemma 2도 22.91%에 그쳤습니다. 이 점수는 연구에 포함된 버전의 관측값입니다. <a href="https://aclanthology.org/2026.findings-acl.1731/">Ojewale 등 · Findings of ACL 2026, 표 9·11</a></p>
+  </section>
+
+  <section class="principles" aria-labelledby="bias-development">
+    <h2 id="bias-development">04 · 언어마다 개발 방식도 달라지나?</h2>
+    <div class="research-table-wrap">
+      <table class="research-table" role="table">
+        <caption>대상 언어에 맞춰 달리 설계한 연구 사례</caption>
+        <thead><tr><th scope="col">언어·지역</th><th scope="col">모델 또는 평가</th><th scope="col">달라진 개발·평가 방식</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">한국어</th><td>HyperCLOVA · KMMLU</td><td>형태소 경계와 한국어 중심 말뭉치를 학습에 활용합니다. 한국어 원문 시험은 번역 평가에서 놓치기 쉬운 한국의 지식과 제도를 다룹니다. <a href="ai-research.html#hyperclova">한국어 AI 해설</a></td></tr>
+          <tr><th scope="row">힌디어</th><td>AI4Bharat Airavata</td><td>OpenHathi를 바탕으로 힌디어 지시와 답변 쌍으로 미세 조정했습니다. 인도 언어용 지시 데이터와 평가 자료도 공개했습니다. <a href="https://arxiv.org/abs/2401.15006">Airavata 기술 보고서</a></td></tr>
+          <tr><th scope="row">아랍어</th><td>Jais·Jais-chat</td><td>아랍어·영어·코드 혼합 자료로 기반 모델을 학습하고, 대화형 버전에는 지시 미세 조정을 적용했습니다. <a href="https://arxiv.org/abs/2308.16149">Jais 기술 보고서</a></td></tr>
+          <tr><th scope="row">동남아시아 언어</th><td>AI Singapore SEA-LION v3</td><td>Llama와 Gemma를 각각 출발점으로 삼아 다국어 자료로 추가 사전학습하고 지시 미세 조정을 진행했습니다. 태국어·베트남어·인도네시아어 등의 과제는 지역 평가에서 확인합니다. <a href="https://arxiv.org/abs/2504.05747">SEA-LION 연구</a> · <a href="https://docs.sea-lion.ai/benchmarks/sea-helm">SEA-HELM 평가</a></td></tr>
+          <tr><th scope="row">아프리카 저자원 언어</th><td>IrokoBench</td><td>17개 아프리카 언어의 문항을 사람이 번역해 추론·수학·지식을 평가했습니다. 일부 영어 중심 모델은 질문을 영어로 번역하면 점수가 올랐습니다. 이는 현지 언어로 자연스럽게 생성하는 능력과 별도입니다. <a href="https://aclanthology.org/2025.naacl-long.139/">Adelani 등 · NAACL 2025</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="principles" aria-labelledby="bias-evaluation">
+    <h2 id="bias-evaluation">05 · 언어 편향과 문화 편향을 어떻게 구별할까?</h2>
+    <ol class="bias-steps">
+      <li><strong>같은 문제를 번역해 비교합니다.</strong> 뜻을 맞춘 질문에 언어만 바꿔 정답률, 지시 이행, 답변이 다른 언어로 바뀌는 비율을 기록합니다. 번역 품질과 문항 난이도도 확인합니다.</li>
+      <li><strong>현지에서 만든 문제를 별도로 평가합니다.</strong> 같은 언어권에도 여러 지역과 문화가 있습니다. 한국어의 존댓말과 제도 지식처럼 번역 문제로 놓치기 쉬운 능력을 평가하고, 지역·세대에 따른 평가 차이도 살핍니다.</li>
+      <li><strong>모델과 서비스 조건을 기록합니다.</strong> 버전과 생성 설정, 질문과 답변 언어, 지시문을 고정합니다. 응답 누락과 오답을 따로 기록하고, 편향의 원인을 확인할 때는 학습 데이터·토크나이저·후학습 중 하나씩 바꾸어 비교합니다.</li>
+    </ol>
+    <p>Global-MMLU 연구는 42개 언어 번역 문항을 문화적 맥락에 민감한 문항과 그렇지 않은 문항으로 나눴을 때 모델 순위가 달라질 수 있음을 보였습니다. 번역 평가와 현지 원문 평가를 함께 보면 두 종류의 편향을 구분하기 쉬워집니다. <a href="https://aclanthology.org/2025.acl-long.919/">Global-MMLU · ACL 2025</a></p>
+  </section>
+</main>
+</body>
+</html>

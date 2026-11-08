@@ -65,6 +65,7 @@ GitHub Pages는 저장소의 **Settings → Pages**에서 **Deploy from a branch
 | `research.html`, `research.js`, `research-map.svg` | 학술 연구, 대표 언어 위치 지도, 유니코드 조합 실험 |
 | `atlas.html`, `atlas.js`, `atlas-data.js` | 언어 겹치기 지도, 화자·국가 수 그래프, 식민 통치 이후 언어 지위 비교 |
 | `ai-research.html`, `ai-*.svg` | 한국어 AI 논문 5편의 실험 해설과 수치 기반 도해 |
+| `language-bias.html`, `language-bias.js` | LLM 언어 편향 연구, 다국어 성능 그래프, 지역 특화 모델 |
 
 ## 참고 자료
 
