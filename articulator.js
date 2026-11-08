@@ -27,6 +27,8 @@
       const signal = new T.MeshBasicMaterial();
       const focusMaterial = new T.MeshBasicMaterial({depthTest:false});
       const facialMaterial = new T.MeshStandardMaterial({roughness:.48,transparent:true,opacity:.82});
+      const skinMaterial = new T.MeshStandardMaterial({roughness:.68,transparent:true,opacity:.26,depthWrite:false});
+      const skinShadowMaterial = new T.MeshStandardMaterial({roughness:.75,transparent:true,opacity:.19,depthWrite:false});
       const eyeMaterial = new T.MeshStandardMaterial({roughness:.25,metalness:.04});
       const irisMaterial = new T.MeshStandardMaterial({roughness:.31,metalness:.16});
       const lipDetailMaterial = new T.MeshStandardMaterial({roughness:.38,transparent:true,opacity:.92});
@@ -64,6 +66,8 @@
         signal.color.copy(cssColor('--viz-series-2'));
         focusMaterial.color.copy(cssColor('--viz-series-1'));
         facialMaterial.color.copy(cssColor('--viz-series-1'));
+        skinMaterial.color.copy(panel).lerp(text,.18);
+        skinShadowMaterial.color.copy(panel).lerp(text,.34);
         eyeMaterial.color.copy(panel).lerp(text,.12);
         irisMaterial.color.copy(cssColor('--viz-series-1'));
         lipDetailMaterial.color.copy(pink).lerp(panel,.1);
@@ -73,6 +77,7 @@
           cavity.color.set('#0f2932'); signal.color.set('#f4c978'); focusMaterial.color.set('#f5d7a0');
           xrayMaterial.color.set('#74c5db'); xrayLineMaterial.color.set('#9edcf0');
           facialMaterial.color.set('#276274'); eyeMaterial.color.set('#d2f3f5'); irisMaterial.color.set('#1d91ad'); lipDetailMaterial.color.set('#f181aa');
+          skinMaterial.color.set('#80969b'); skinShadowMaterial.color.set('#263c43');
         }
       }
       function light(scene) {
@@ -136,6 +141,15 @@
 
       // Facial landmarks make the x-ray view read as a human profile while the moving parts
       // remain the educational lips, tongue and airway model below.
+      const faceShell = new T.Group();
+      faceShell.visible = false;
+      overview.add(faceShell);
+      const scalp = ellipsoid(faceShell,skinMaterial,[165,81,-25],[94,103,65]);
+      const cheek = ellipsoid(faceShell,skinMaterial,[111,102,1],[57,66,48]);
+      const chin = ellipsoid(faceShell,skinMaterial,[122,130,2],[48,34,43]);
+      const earNear = ellipsoid(faceShell,skinShadowMaterial,[206,91,45],[12,23,8]);
+      const earFar = ellipsoid(faceShell,skinShadowMaterial,[206,91,-45],[12,23,8]);
+      const browRidge = ellipsoid(faceShell,skinShadowMaterial,[120,51,1],[34,8,48]);
       const faceDetails = new T.Group();
       faceDetails.visible = false;
       overview.add(faceDetails);
@@ -148,6 +162,8 @@
       eyeSocket.position.copy(v(121,58,7)); eyeSocket.scale.x=1.22; faceDetails.add(eyeSocket);
       const eye = ellipsoid(faceDetails,eyeMaterial,[116,59,8],[10,7.5,8]);
       const iris = ellipsoid(faceDetails,irisMaterial,[108,59,14],[3.2,4.4,1.4]);
+      const farEye = ellipsoid(faceDetails,eyeMaterial,[116,59,-31],[8.5,6.6,7]);
+      const farIris = ellipsoid(faceDetails,irisMaterial,[108,59,-36],[2.8,3.8,1.1]);
       const brow = new T.Mesh(new T.TorusGeometry(16,.8,8,28,Math.PI),xrayMaterial);
       brow.position.copy(v(120,48,7)); brow.rotation.z=.20; faceDetails.add(brow);
       const upperLipRidge = ellipsoid(faceDetails,lipDetailMaterial,[77,84,13],[11,2.3,4.8]);
@@ -261,6 +277,7 @@
         tongueTip.scale.set(11,4.4,7.4);
         tongueRidge.position.copy(v((tipX+backX)/2+7,(tipY+backY)/2+5,13));
         tongueRidge.rotation.z=Math.atan2(-(tipY-backY),tipX-backX);
+        chin.position.y=-130-.32*(lipY-92);
         upperGum.position.x = (lipX+100)/2;
         lowerGum.position.set((lipX+107)/2,-lipY-7,-7);
         upperGum.scale.x = 15+3*round;
@@ -326,6 +343,7 @@
       function setCinematic(next) {
         cinematic = Boolean(next);
         xrayGroup.visible = cinematic;
+        faceShell.visible = cinematic;
         faceDetails.visible = cinematic;
         renderers.forEach(renderer=>renderer.setClearColor(cinematic ? 0x05090d : 0x000000,cinematic ? 1 : 0));
         palette();
