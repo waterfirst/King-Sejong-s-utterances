@@ -23,7 +23,9 @@ h1, h2, h3, p, figure { margin: 0; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.1rem; }
 h1 { font-size: clamp(2.1rem, 6vw, 3.5rem); letter-spacing: -.075em; line-height: 1.12; margin-block: .35rem .55rem; }
-.eyebrow { font-weight: 700; color: var(--viz-series-1); }
+.title-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: clamp(.6rem, 2vw, 1rem); }
+.title-row h1 { word-break: keep-all; overflow-wrap: anywhere; }
+.title-image { display: block; width: clamp(3.25rem, 9vw, 5.5rem); height: auto; aspect-ratio: 1; object-fit: contain; }
 .intro, .legend, figcaption, footer, [data-shot], .status { color: var(--muted); }
 .prologue { display: grid; gap: .6rem; padding: clamp(.9rem, 3vw, 1.6rem); border: 1px solid var(--edge); border-radius: .9rem; background: var(--panel); }
 .old-hangul { margin: 0; color: var(--viz-series-1); font-family: 'Noto Serif CJK KR', 'Malgun Gothic', serif; font-size: clamp(1.1rem, 4vw, 1.8rem); line-height: 1.65; overflow-wrap: anywhere; }
