@@ -106,6 +106,32 @@ figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 .country-list dl { display: grid; gap: .5rem; margin-block: .6rem 0; }
 .country-list dt { font-weight: 650; }
 .country-list dd { margin: 0; }
+.research header { margin-bottom: 0; }
+.research { word-break: keep-all; overflow-wrap: anywhere; }
+.research .principles { scroll-margin-top: 1rem; }
+.research-list { grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); }
+.research-widget { gap: .55rem; }
+.research-widget label { font-weight: 650; }
+.language-map { display: block; width: 100%; height: auto; background: #f6f3ec; border-radius: .4rem; }
+.language-map circle { fill: #596962; stroke: #f6f3ec; stroke-width: .9; }
+.language-map circle.selected { fill: #9b4528; stroke: #fffdf8; stroke-width: 1.25; }
+.language-selection { display: flex; flex-wrap: wrap; gap: .35rem 1rem; list-style: none; margin: 0; padding: 0; }
+.unicode-results { overflow-wrap: anywhere; }
+.unicode-results output { font-variant-numeric: tabular-nums; }
+kbd { padding: .08em .35em; border: 1px solid var(--edge); border-radius: .22em; background: var(--panel); }
+.research-table-wrap { overflow-x: auto; }
+.research-table { width: 100%; border-collapse: collapse; background: var(--panel); }
+.research-table th, .research-table td { padding: .6rem; border: 1px solid var(--edge); text-align: start; vertical-align: top; word-break: keep-all; overflow-wrap: anywhere; }
+.research-table th[scope='row'] { min-width: 6rem; }
+@media (max-width: 560px) {
+  .research-table, .research-table tbody, .research-table tr, .research-table th, .research-table td { display: block; }
+  .research-table { background: transparent; }
+  .research-table thead { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+  .research-table tbody { display: grid; gap: .55rem; }
+  .research-table tbody tr { padding: .65rem .75rem; background: var(--panel); border: 1px solid var(--edge); border-radius: .55rem; }
+  .research-table th, .research-table td { padding: .25rem 0; border: 0; }
+  .research-table td:last-child { color: var(--muted); }
+}
 footer { margin-top: 1rem; }
 a { color: var(--viz-series-1); }
 @media (max-width: 420px) {
