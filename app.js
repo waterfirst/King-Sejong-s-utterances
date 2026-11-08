@@ -4,6 +4,7 @@
     const input = el('text'), choice = el('choice'), seek = el('seek'), play = el('play');
     const listenButton = el('listen');
     const rateInput = el('rate');
+    const jamo = el('jamo');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const duration = 2.4;
     const initialJamo = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
@@ -19,14 +20,14 @@
       ㄱ:['back','stop'], ㄲ:['back','tense'], ㄴ:['ridge','nasal'], ㄷ:['ridge','stop'], ㄸ:['ridge','tense'], ㄹ:['ridge','tap'],
       ㅁ:['lips','nasal'], ㅂ:['lips','stop'], ㅃ:['lips','tense'], ㅅ:['hiss','fricative'], ㅆ:['hiss','fricative'], ㅇ:['open','open'],
       ㅈ:['palate','affricate'], ㅉ:['palate','affricate'], ㅊ:['palate','aspirated-affricate'], ㅋ:['back','aspirate'], ㅌ:['ridge','aspirate'],
-      ㅍ:['lips','aspirate'], ㅎ:['throat','breath']
+      ㅍ:['lips','aspirate'], ㅎ:['throat','breath'], ㆁ:['back','nasal'], ㆆ:['throat','glottal-stop'], ㅿ:['hiss','voiced-fricative']
     };
     const finals = {ㄱ:['back','stop'], ㄴ:['ridge','nasal'], ㄷ:['ridge','stop'], ㄹ:['ridge','lateral'], ㅁ:['lips','nasal'], ㅂ:['lips','stop'], ㅇ:['back','nasal']};
     const points = {back:[199,78],ridge:[117,78],hiss:[115,83],palate:[141,69],lips:[80,90],throat:[231,139]};
     const placeNames = {back:'여린입천장과 혀 뒤',ridge:'윗잇몸과 혀끝',hiss:'윗잇몸과 혀 사이',palate:'입천장과 혀 앞',lips:'두 입술',throat:'성문'};
     const poses = {
       a:[108,116,139,108,188,108,214,122], e:[110,101,141,88,183,96,213,119], ae:[109,105,141,94,183,100,213,121],
-      eo:[109,109,140,101,186,99,215,118], o:[107,105,140,97,188,86,215,116],
+      eo:[109,109,140,101,186,99,215,118], arae:[108,113,140,108,190,101,216,122], o:[107,105,140,97,188,86,215,116],
       u:[107,103,139,96,189,82,215,111], eu:[110,101,145,90,187,86,213,113], i:[110,96,143,75,180,88,213,112],
       back:[111,112,143,105,199,77,216,107], ridge:[118,78,139,95,185,107,214,120], hiss:[116,86,139,93,184,103,214,119],
       palate:[117,90,143,69,184,92,215,116], slit:[116,93,142,77,185,94,214,119]
@@ -35,13 +36,54 @@
     const vowels = {
       ㅏ:['a',111,0],ㅐ:['ae',105,0],ㅑ:['a',111,0,'i'],ㅒ:['ae',105,0,'i'],ㅓ:['eo',107,0],ㅔ:['e',102,0],ㅕ:['eo',107,0,'i'],ㅖ:['e',102,0,'i'],
       ㅗ:['o',101,.82],ㅘ:['a',111,0,'o'],ㅙ:['ae',105,0,'o'],ㅚ:['e',102,0,'o'],ㅛ:['o',101,.82,'i'],ㅜ:['u',100,1],
-      ㅝ:['eo',107,0,'u'],ㅞ:['e',102,0,'u'],ㅟ:['i',99,0,'u'],ㅠ:['u',100,1,'i'],ㅡ:['eu',100,0],ㅢ:['i',99,0,'eu'],ㅣ:['i',99,0]
+      ㅝ:['eo',107,0,'u'],ㅞ:['e',102,0,'u'],ㅟ:['i',99,0,'u'],ㅠ:['u',100,1,'i'],ㅡ:['eu',100,0],ㅢ:['i',99,0,'eu'],ㅣ:['i',99,0],ㆍ:['arae',109,0]
     };
     const vowelInfo = {
       a:'턱을 내려 입을 넓게 엽니다.', ae:'혀 앞을 중간 높이에 두고 입을 엽니다.', e:'혀 앞을 올리고 입술을 펴 둡니다.',
       eo:'입술을 펴고 혀 몸통을 약간 뒤로 둡니다.', o:'혀 뒤를 올리고 입술을 둥글게 모읍니다.',
-      u:'혀 뒤를 높이고 입술을 더 좁게 모읍니다.', eu:'입술을 모으지 않고 혀 몸통을 높입니다.', i:'혀 앞을 높이고 입술을 둥글게 모으지 않습니다.'
+      u:'혀 뒤를 높이고 입술을 더 좁게 모읍니다.', eu:'입술을 모으지 않고 혀 몸통을 높입니다.', i:'혀 앞을 높이고 입술을 둥글게 모으지 않습니다.',
+      arae:'혀 몸통을 뒤쪽에 두고 입을 여는 재구 모형입니다.'
     };
+    const historicalGroups = [
+      ['아음 · 어금닛소리', [
+        ['ㄱ','가','「예의」는 君의 첫소리를 예로 듭니다. 혀 뒤를 여린입천장에 붙였다가 뗍니다.'],
+        ['ㅋ','카','「예의」의 快 첫소리. ㄱ과 같은 자리에서 막았다가 숨을 세게 내보냅니다.'],
+        ['ㆁ','앙','옛이응. 혀 뒤로 입길을 막고 코로 울리는 [ŋ] 계열입니다. 현대 ‘앙’에서는 받침을 비교해 보세요.']
+      ]],
+      ['설음 · 혓소리', [
+        ['ㄷ','다','「예의」의 斗 첫소리. 혀끝으로 윗잇몸을 막았다가 뗍니다.'],
+        ['ㅌ','타','혀끝으로 막았다가 떼면서 센 숨을 내보냅니다.'],
+        ['ㄴ','나','혀끝을 윗잇몸에 댄 채 공기를 코로 보냅니다.']
+      ]],
+      ['순음 · 입술소리', [
+        ['ㅂ','바','두 입술로 공기를 막았다가 엽니다.'],
+        ['ㅍ','파','두 입술을 열면서 센 숨을 내보냅니다.'],
+        ['ㅁ','마','두 입술을 닫고 공기를 코로 내보냅니다.']
+      ]],
+      ['치음 · 잇소리', [
+        ['ㅈ','자','혀 앞에서 공기를 막았다가 좁은 틈을 열어 마찰을 만듭니다.'],
+        ['ㅊ','차','혀 앞의 막힘을 풀면서 마찰과 센 숨을 냅니다.'],
+        ['ㅅ','사','혀와 윗잇몸 사이의 좁은 틈으로 공기를 보내 마찰을 만듭니다.']
+      ]],
+      ['후음 · 목구멍소리', [
+        ['ㆆ',null,'여린히읗. 「예의」는 挹의 첫소리를 예로 듭니다. 성문을 잠깐 닫았다 여는 [ʔ] 계열로 재구했습니다.'],
+        ['ㅎ','하','성문 부근의 열린 틈으로 숨을 내보냅니다.'],
+        ['ㅇ','아','해례본에서 목구멍소리로 분류합니다. 모형과 ‘아’ 음성은 현대 모음 앞에서 자음 소리가 나지 않는 경우를 보여줍니다.']
+      ]],
+      ['반설음과 반치음', [
+        ['ㄹ','라','혀끝을 윗잇몸 쪽으로 움직입니다. 비교 음성은 현대 ‘라’의 첫소리입니다.'],
+        ['ㅿ',null,'반시옷. 「예의」는 穰의 첫소리를 예로 듭니다. 성대가 울리면서 혀 앞의 좁은 틈에서 마찰을 내는 [z] 계열로 재구했습니다.']
+      ]],
+      ['중성 · 가운뎃소리', [
+        ['ㆍ',null,'아래아. 「예의」는 呑의 가운뎃소리를 예로 듭니다. 정확한 음가에는 견해 차이가 있어 혀를 뒤쪽에 두고 입을 여는 한 가지 모형을 보여줍니다.'],
+        ['ㅡ','으','입술을 모으지 않고 혀 몸통을 높입니다.'], ['ㅣ','이','혀 앞을 높이고 입술을 펴 둡니다.'],
+        ['ㅗ','오','혀 뒤를 올리고 입술을 둥글게 모읍니다.'], ['ㅏ','아','입을 넓게 열어 소리 냅니다.'],
+        ['ㅜ','우','혀 뒤를 높이고 입술을 더 좁고 둥글게 모읍니다.'], ['ㅓ','어','입술을 펴고 혀 몸통을 뒤쪽에 둡니다.'],
+        ['ㅛ','요','ㅣ에 가까운 자세에서 ㅗ로 이어갑니다.'], ['ㅑ','야','ㅣ에 가까운 자세에서 ㅏ로 이어갑니다.'],
+        ['ㅠ','유','ㅣ에 가까운 자세에서 ㅜ로 이어갑니다.'], ['ㅕ','여','ㅣ에 가까운 자세에서 ㅓ로 이어갑니다.']
+      ]]
+    ];
+    const historicalLetters = historicalGroups.flatMap(([group, entries]) => entries.map(([glyph,comparison,note]) => ({glyph,comparison,note,group})));
 
     function analyze(text) {
       const units = Array.from(text.normalize('NFC'), char => {
@@ -103,7 +145,7 @@
       return target ? [blend(wide[0],target[0],.74),blend(wide[1],target[1],.64),1.45] : wide;
     };
     let scene, units=[], tokens=[], index=0, time=0, active=false, raf=0, anchor=0, pending=0, lastCue='', speechRun;
-    let composing=false, completed=false;
+    let composing=false, completed=false, historical=true;
 
     function render(t, speaking=false) {
       time = t;
@@ -117,7 +159,7 @@
       const glideRound = glide === 'o' ? .82 : glide === 'u' ? 1 : 0;
       const aspirated = kind === 'aspirate' || kind === 'aspirated-affricate';
       const affricate = kind === 'affricate' || kind === 'aspirated-affricate';
-      const onsetVoiced = kind === 'nasal' || kind === 'tap' || kind === 'lateral';
+      const onsetVoiced = kind === 'nasal' || kind === 'tap' || kind === 'lateral' || kind === 'voiced-fricative';
       const release = kind === 'tap' ? .63 : .72;
       const vowelStart = kind === 'open' ? .40 : onsetVoiced ? .97 : aspirated || affricate || kind === 'fricative' || kind === 'breath' ? 1.11 : .98;
       const vowelMix = kind === 'open' ? between(t,.10,vowelStart) : between(t,release,vowelStart);
@@ -141,13 +183,13 @@
       const voiced = Boolean(unit) && (voicedOnset || isVowel && !(codaClosed && codaKind === 'stop')) && t < 2.30;
       const breathStart = kind === 'breath' ? .42 : release;
       const breath = (aspirated || kind === 'breath') && t >= breathStart && t < vowelStart;
-      const airGap = aspirated || kind === 'breath' ? blend(5,7.1,between(t,breathStart-.10,breathStart+.10)) : kind === 'tense' ? blend(5,.72,between(t,.19,.47)) : 4.8;
+      const airGap = aspirated || kind === 'breath' ? blend(5,7.1,between(t,breathStart-.10,breathStart+.10)) : kind === 'tense' ? blend(5,.72,between(t,.19,.47)) : kind === 'glottal-stop' ? blend(blend(5,.09,between(t,.21,.45)),4.8,between(t,release,release+.08)) : 4.8;
       const voiceStart = onsetVoiced ? .47 : vowelStart;
       const vowelGap = blend(airGap,.90,between(t,voiceStart-.11,voiceStart+.03));
       const finalGap = codaKind === 'stop' ? blend(vowelGap,.55,between(t,1.86,2.08)) : vowelGap;
       const glottalGap = blend(finalGap,4.8,between(t,2.26,duration));
       const lateral = kind === 'lateral' && t >= .47 && t < release+.07 || codaClosed && codaKind === 'lateral';
-      const oral = isVowel || t >= release+.035 || kind === 'breath' && t >= .42 || kind === 'fricative' && t >= .47;
+      const oral = isVowel || t >= release+.035 || kind === 'breath' && t >= .42 || kind.endsWith('fricative') && t >= .47;
       const air = Boolean(unit) && (nasal || lateral || oral && !codaClosed) && t < 2.30;
       const contact = isCoda ? points[codaPlace] : t >= .24 && t < vowelStart ? points[place] : null;
       const vowelCamera = targetRound || glideRound ? cameraAt('lips') : wide;
@@ -185,7 +227,9 @@
         phase = '모음';
         note = glide && vowelGlide < .98 ? '짧은 시작 모음에서 목표 모음으로 혀와 입술을 옮깁니다.' : `${vowelInfo[vowel]} 성대가 진동합니다.`;
       } else if (t >= .47 && kind !== 'open') {
-        if (t >= release && !['fricative','breath'].includes(kind)) { phase = '초성 풀림'; note = affricate ? '막힘을 풀고 좁은 틈에 마찰을 만듭니다.' : breath ? '막힘을 풀고 센 숨을 내보냅니다.' : '혀나 입술의 막힘을 풀어 모음으로 이어갑니다.'; }
+        if (kind === 'glottal-stop') { phase = t < release ? '성문 닫힘' : '성문 열림'; note = t < release ? '두 성대가 가까워져 공기를 잠깐 막습니다.' : '성문을 다시 열고 모음으로 이어갑니다.'; }
+        else if (kind === 'voiced-fricative') { phase = '유성 마찰'; note = '성대가 울리는 동안 혀 앞의 좁은 틈에서 마찰이 납니다.'; }
+        else if (t >= release && !['fricative','breath'].includes(kind)) { phase = '초성 풀림'; note = affricate ? '막힘을 풀고 좁은 틈에 마찰을 만듭니다.' : breath ? '막힘을 풀고 센 숨을 내보냅니다.' : '혀나 입술의 막힘을 풀어 모음으로 이어갑니다.'; }
         else if (kind === 'nasal') { phase = '콧소리'; note = `${placeNames[place]}에서 입길을 막습니다. 성대가 울리고 공기는 코로 나갑니다.`; }
         else if (kind === 'breath') { phase = '숨소리'; note = '성문이 열린 채로 숨이 나갑니다.'; }
         else if (kind === 'fricative') { phase = '마찰'; note = '혀와 윗잇몸 사이 좁은 틈으로 공기가 나갑니다.'; }
@@ -195,7 +239,7 @@
       const cue = `${index}/${unit?.spoken}/${phase}/${note}`;
       if (cue !== lastCue) {
         lastCue = cue;
-        el('syllable').textContent = unit ? `${index+1}/${tokens.length} · ${unit.char === unit.spoken ? unit.char : `${unit.char} → ${unit.spoken}`} · ${phase}` : '한글 음절을 입력하세요.';
+        el('syllable').textContent = unit ? `${historical ? unit.char : `${index+1}/${tokens.length} · ${unit.char === unit.spoken ? unit.char : `${unit.char} → ${unit.spoken}`}`} · ${phase}` : '한글 음절을 입력하세요.';
         el('articulation').textContent = unit ? note : '';
         el('shot').textContent = unit ? speaking ? '카메라 · 입과 목 전체 고정' : `카메라 · ${isCoda ? placeNames[codaPlace] : isVowel ? targetRound || glideRound ? '입술과 혀' : '입 전체' : placeNames[place] ?? '입 전체'}` : '';
       }
@@ -229,7 +273,7 @@
       clearTimeout(speechRun.timeout);
       speechRun=null;
       window.speechSynthesis.cancel();
-      listenButton.textContent='발음과 함께 재생';
+      listenButton.textContent=historical ? comparisonLabel() : '발음과 함께 재생';
       rateInput.disabled=false;
     }
     function update(auto=false, preferred=null) {
@@ -254,6 +298,53 @@
     }
 
     function status(message) { el('status').hidden=!message; el('status').textContent=message; }
+
+    function comparisonLabel() { return `현대 비교 듣기 · ${historicalLetters[jamo.value].comparison}`; }
+
+    function selectHistorical() {
+      stopAudio(); stop(); status(''); completed=false; lastCue='';
+      const letter=historicalLetters[jamo.value];
+      const isVowel=Object.hasOwn(vowels,letter.glyph);
+      units=[];
+      tokens=[{char:letter.glyph,spoken:letter.glyph,onset:isVowel?'ㅇ':letter.glyph,vowel:isVowel?letter.glyph:'ㅏ',coda:' ',pause:0}];
+      index=0;
+      el('jamo-note').textContent=`${letter.glyph} · ${letter.note}`;
+      listenButton.hidden=rateInput.closest('label').hidden=!letter.comparison;
+      listenButton.disabled=choice.disabled=false;
+      listenButton.textContent=letter.comparison ? comparisonLabel() : '';
+      play.disabled=seek.disabled=false;
+      render(0); label();
+    }
+
+    function setMode(useHistory) {
+      stopAudio(); stop(); status('');
+      historical=useHistory;
+      el('history-mode').setAttribute('aria-pressed',String(historical));
+      el('modern-mode').setAttribute('aria-pressed',String(!historical));
+      el('history').hidden=!historical;
+      el('modern').hidden=el('modern-choice').hidden=historical;
+      if (historical) { selectHistorical(); return; }
+      listenButton.hidden=rateInput.closest('label').hidden=false;
+      listenButton.textContent='발음과 함께 재생';
+      update();
+    }
+
+    function listenComparison(synth,voice) {
+      const letter=historicalLetters[jamo.value];
+      if (!letter.comparison) return;
+      const speech=new SpeechSynthesisUtterance(letter.comparison);
+      speech.voice=voice; speech.lang=voice.lang; speech.rate=Number(rateInput.value);
+      const run={frame:0,timeout:0};
+      speechRun=run;
+      listenButton.textContent='비교 음성 정지'; rateInput.disabled=true;
+      status('현대 한국어 비교 음성입니다.');
+      const finish=message=>{ if (speechRun===run) { stopAudio(); status(message); } };
+      run.timeout=setTimeout(()=>finish('비교 음성을 시작할 수 없습니다.'),5000);
+      speech.onstart=()=>clearTimeout(run.timeout);
+      speech.onend=()=>finish('');
+      speech.onerror=()=>finish('비교 음성을 재생할 수 없습니다.');
+      try { synth.speak(speech); } catch { finish('비교 음성을 시작할 수 없습니다.'); }
+    }
 
     function spokenTimeline() {
       const words=[];
@@ -312,6 +403,7 @@
       const synth=window.speechSynthesis;
       const voice=synth?.getVoices().find(candidate=>candidate.localService && /^ko(?:[-_]|$)/i.test(candidate.lang));
       if (!voice) { status('이 브라우저에서 한국어 시스템 음성을 찾지 못했습니다. 운영체제에 한국어 음성을 추가하면 함께 재생할 수 있습니다.'); return; }
+      if (historical) { listenComparison(synth,voice); return; }
       const {text,words}=spokenTimeline();
       const rate=Number(rateInput.value);
       const utterance=new SpeechSynthesisUtterance(text);
@@ -368,7 +460,17 @@
     play.addEventListener('click',()=>{stopAudio();status('');if(active)stop();else start();});
     rateInput.addEventListener('input',()=>{el('rate-value').textContent=`${Number(rateInput.value).toFixed(1)}×`;});
     listenButton.addEventListener('click',listen);
+    let offset=0;
+    for (const [group,entries] of historicalGroups) {
+      const options=document.createElement('optgroup');
+      options.label=group;
+      for (const [glyph] of entries) options.append(new Option(glyph,String(offset++)));
+      jamo.append(options);
+    }
+    jamo.addEventListener('change',selectHistorical);
+    el('history-mode').addEventListener('click',()=>{ if (!historical) setMode(true); });
+    el('modern-mode').addEventListener('click',()=>{ if (historical) setMode(false); });
     try { scene=root.createArticulationScene(); }
     catch { el('views').hidden=true; root.querySelector('.stage').removeAttribute('hidden'); }
-    update();
+    setMode(true);
   })();
