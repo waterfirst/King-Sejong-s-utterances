@@ -6,7 +6,7 @@ const compareNames = new Intl.Collator('ko').compare;
 const countryName = (code) => ({ KR: '대한민국', KP: '북한', CD: '콩고민주공화국' })[code] ?? regionNames.of(code);
 const languageName = (code) => ({ zh: '중국어 (CLDR zh)', es: '스페인어', my: '미얀마어' })[code] ?? languageNames.of(code) ?? code;
 const statusNames = ['공용 지위 미기록', '소수언어 공용', '지역 공용', '사실상 국가 공용', '국가 공용'];
-const layerColors = ['#0069da', '#d43180', '#cf7b00'];
+const languageColor = '#2a70b4';
 const historyColors = { retained: '#138476', other: '#c66224' };
 const historyLabels = { retained: '국가 공용·중앙 공무에 사용', other: '국가 공용·중앙 공무 지위 없음' };
 
@@ -143,28 +143,18 @@ byId('atlas-speakers').after(element('p', speakerBreakdown.join(' / '), 'source-
 
 const countrySelect = byId('atlas-country');
 const criterion = byId('atlas-criterion');
-const selectors = layerColors.map((_, index) => byId('atlas-layer-' + (index + 1)));
+const languageSelect = byId('atlas-language');
 const common = ['en', 'fr', 'es', 'ko', 'zh', 'hi', 'ar', 'pt', 'ru', 'ja', 'id', 'nl'];
 const languageOptions = Object.keys(atlasData.languages).filter((id) => !common.includes(id))
   .sort((a, b) => compareNames(languageName(a), languageName(b)));
-const languageChoices = [['', '선택 안 함'], ...[...common, ...languageOptions].map((id) => [id, languageName(id)])];
-selectors.forEach((select, index) => {
-  options(select, languageChoices);
-  select.value = ['en', 'fr', 'es'][index];
-  select.addEventListener('change', () => {
-    for (const other of selectors) {
-      if (select !== other && select.value && other.value === select.value) other.value = '';
-    }
-    renderLanguages();
-  });
-});
+options(languageSelect, [...common, ...languageOptions].map((id) => [id, languageName(id)]));
 const countryChoices = atlasData.countries.map((id) => [id, countryName(id)])
   .sort((a, b) => compareNames(a[1], b[1]));
-options(countrySelect, [['', '나라 선택'], ...countryChoices]);
+let shownCountries = [];
 const languagesMap = makeMap(byId('atlas-language-map'), 'languages', (id) => {
-  if (!atlasData.countries.includes(id)) return;
+  if (!shownCountries.includes(id)) return;
   countrySelect.value = id;
-  renderLanguages();
+  renderCountryDetail();
 });
 
 const official = ([, status]) => status >= 3;
@@ -181,31 +171,36 @@ function renderRanking(id, ranks, style) {
 }
 
 const officialRanks = ranking(official);
+
+function renderCountryDetail() {
+  const language = languageSelect.value;
+  const country = countrySelect.value;
+  languagesMap.draw([{ countries: shownCountries, color: languageColor, opacity: 1 }], country);
+  const detail = byId('atlas-country-detail');
+  if (!country) {
+    detail.textContent = shownCountries.length
+      ? '나라를 선택하면 추정 비중과 공용 지위가 표시됩니다.'
+      : '현재 기준에 해당하는 나라가 없습니다.';
+    return;
+  }
+  const [share, status] = atlasData.languages[language][country];
+  detail.replaceChildren(element('strong', countryName(country)),
+    element('p', languageName(language) + ' · ' + share + '% · ' + statusNames[status]));
+}
+
 function renderLanguages() {
   const threshold = criterion.value === 'official' ? 1 : Number(criterion.value);
   const populationTest = ([share]) => share >= threshold;
   const test = criterion.value === 'official' ? official : populationTest;
-  const groups = selectors.flatMap((select, index) => select.value ? [{
-    id: select.value, color: layerColors[index], opacity: 0.36, countries: qualifying(select.value, test)
-  }] : []);
+  const language = languageSelect.value;
+  shownCountries = qualifying(language, test);
   const selected = countrySelect.value;
-  languagesMap.draw(groups, selected);
-  byId('atlas-language-legend').replaceChildren(...groups.map(({ id, color, opacity, countries }) =>
-    legendItem(languageName(id) + ' · ' + countries.length + '곳', color, opacity)));
-  const detail = byId('atlas-country-detail');
-  detail.replaceChildren();
-  if (!selected || !groups.length) {
-    detail.textContent = groups.length ? '나라를 선택하면 언어별 비중과 공용 지위가 여기에 표시됩니다.' : '지도를 칠할 언어를 한 개 이상 선택하세요.';
-  } else {
-    detail.append(element('strong', countryName(selected)));
-    const list = element('ul');
-    for (const { id, countries } of groups) {
-      const record = atlasData.languages[id][selected];
-      const note = record ? record[0] + '% · ' + statusNames[record[1]] : 'CLDR 자료 없음';
-      list.append(element('li', languageName(id) + ' · ' + note + (countries.includes(selected) ? ' · 지도에 표시' : '')));
-    }
-    detail.append(list);
-  }
+  options(countrySelect, [['', '나라 선택'], ...countryChoices.filter(([id]) => shownCountries.includes(id))]);
+  countrySelect.value = shownCountries.includes(selected) ? selected : '';
+  countrySelect.disabled = shownCountries.length === 0;
+  byId('atlas-language-legend').replaceChildren(
+    legendItem(languageName(language) + ' · ' + shownCountries.length + '곳', languageColor));
+  renderCountryDetail();
   const ranks = ranking(populationTest);
   const [mostUsed, usedCount] = ranks[0];
   const [mostOfficial, officialCount] = officialRanks[0];
@@ -214,7 +209,8 @@ function renderLanguages() {
   renderRanking('atlas-usage-ranks', ranks, 'atlas-rank-usage');
 }
 criterion.addEventListener('change', renderLanguages);
-countrySelect.addEventListener('change', renderLanguages);
+languageSelect.addEventListener('change', renderLanguages);
+countrySelect.addEventListener('change', renderCountryDetail);
 renderRanking('atlas-official-ranks', officialRanks, 'atlas-rank-official');
 renderLanguages();
 

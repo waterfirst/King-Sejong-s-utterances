@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="나라별 언어를 지도에서 겹쳐 보고, 화자 수와 사용 국가 수, 독립 뒤 식민 통치 언어의 지위를 비교합니다.">
+  <meta name="description" content="언어를 선택해 사용 국가를 지도에서 보고, 화자 수와 사용 국가 수, 독립 뒤 식민 통치 언어의 지위를 비교합니다.">
   <title>세계 언어 지도 · 한글 학술 연구</title>
   <link rel="stylesheet" href="styles.css">
   <script defer src="atlas-data.js"></script>
-  <script defer src="atlas.js"></script>
+  <script defer src="atlas.js?v=single-language"></script>
 </head>
 <body>
 <main class="research atlas">
   <header>
     <p><a href="index.html">한글 조음 실험실</a> · <a href="research.html#families">한글 학술 연구</a></p>
     <h1>세계 언어 지도</h1>
-    <p class="intro">가장 많은 사람이 쓰는 언어와 가장 많은 나라에서 쓰이는 언어는 어떻게 다를까요? 지도에 언어를 겹쳐 보고, 식민 통치가 끝난 뒤에도 제국의 언어가 공적인 역할을 맡는지 비교합니다.</p>
+    <p class="intro">가장 많은 사람이 쓰는 언어와 가장 많은 나라에서 쓰이는 언어는 어떻게 다를까요? 언어를 하나씩 골라 분포를 보고, 식민 통치가 끝난 뒤에도 제국의 언어가 공적인 역할을 맡는지 비교합니다.</p>
     <nav class="page-nav" aria-label="세계 언어 지도 목차">
       <a href="#distribution">언어 분포 지도</a><a href="#rankings">화자 수와 국가 수</a><a href="#colonies">제국·식민 통치·독립</a><a href="#atlas-method">자료와 기준</a>
     </nav>
@@ -22,21 +22,19 @@
   <noscript><p>지도를 조작하고 순위를 보려면 JavaScript를 켜 주세요.</p></noscript>
 
   <section class="principles" aria-labelledby="distribution">
-    <h2 id="distribution">01 · 언어가 쓰이는 나라를 겹쳐 보기</h2>
-    <p>최대 세 언어를 골라 보세요. 같은 나라가 여러 기준을 충족하면 반투명 색이 겹칩니다. 나라를 누르거나 목록에서 골라 해당 국가의 추정 비중과 공용 지위를 확인할 수 있습니다.</p>
+    <h2 id="distribution">01 · 언어가 쓰이는 나라 보기</h2>
+    <p>언어를 하나 고르면 현재 기준에 맞는 나라가 파란색으로 표시됩니다. 파란 나라를 누르거나 목록에서 골라 추정 비중과 공용 지위를 확인할 수 있습니다.</p>
     <div class="studio atlas-panel">
       <div class="atlas-controls">
-        <label>언어 1<select id="atlas-layer-1"></select></label>
-        <label>언어 2<select id="atlas-layer-2"></select></label>
-        <label>언어 3<select id="atlas-layer-3"></select></label>
+        <label>언어<select id="atlas-language"></select></label>
         <label>색칠 기준<select id="atlas-criterion">
           <option value="1">인구의 1% 이상</option><option value="0.1">인구의 0.1% 이상</option><option value="5">인구의 5% 이상</option>
           <option value="official">국가 공용·사실상 공용</option>
         </select></label>
       </div>
       <svg id="atlas-language-map" class="atlas-map" viewBox="0 0 720 292" role="img" aria-label="선택한 언어의 국가별 분포"></svg>
-      <ul class="atlas-legend" id="atlas-language-legend" aria-label="언어별 색과 국가 수"></ul>
-      <label class="atlas-country-label">나라별 상세 보기<select id="atlas-country"></select></label>
+      <ul class="atlas-legend" id="atlas-language-legend" aria-label="선택한 언어와 국가 수" aria-live="polite"></ul>
+      <label class="atlas-country-label">표시된 나라<select id="atlas-country"></select></label>
       <div id="atlas-country-detail" class="atlas-detail" aria-live="polite"></div>
     </div>
   </section>
