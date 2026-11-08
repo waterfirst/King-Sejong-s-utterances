@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="한글을 입력하고 한국어 발음에 맞춰 혀, 입술, 성대가 움직이는 과정을 살펴보세요.">
+  <title>세종의 발화 · 한글 조음 실험실</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js" integrity="sha384-qOkzR5Ke/XkQxuGVJ9hpFEpDlcoLtWwVYhnJf06cLIZa2vaIptSqaubivErzmD5O" crossorigin="anonymous"></script>
+  <script defer src="articulator.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+<main id="hangul-articulation">
+  <header>
+    <p class="eyebrow">한글 조음 실험실</p>
+    <h1>세종의 발화</h1>
+    <p class="intro">글을 입력하고, 소리가 만들어지는 순간을 들여다보세요.</p>
+  </header>
+  <section class="studio" aria-label="한글 조음 시연">
+    <label class="input-line" for="hangul-text">한글 단어 또는 문장</label>
+    <input id="hangul-text" data-text type="text" value="같이 밥을 먹어요." maxlength="160" autocomplete="off" spellcheck="false">
+    <p class="reading" data-reading></p>
+    <div class="transport">
+      <div class="actions">
+        <button type="button" class="primary" data-listen>발음과 함께 재생</button>
+        <button type="button" data-play>느리게 관찰</button>
+      </div>
+      <label class="speed"><span>발음 속도 <output data-rate-value>0.9×</output></span>
+        <input data-rate type="range" min="0.5" max="1.3" step="0.1" value="0.9" aria-label="발음 속도">
+      </label>
+    </div>
+    <p class="status" data-status role="status" hidden></p>
+    <div class="views" data-views hidden>
+      <figure class="viewport"><canvas data-mouth role="img" aria-label="입과 목의 3D 옆 단면"></canvas><figcaption>입과 목 · 옆 단면</figcaption></figure>
+      <figure class="viewport"><canvas data-folds role="img" aria-label="위에서 본 성대와 성문"></canvas><figcaption>성대 · 위에서</figcaption></figure>
+    </div>
+<svg class="stage" viewBox="0 0 360 176" role="img" aria-label="왼쪽을 보는 입과 목의 단면. 원은 조음 위치, 점선 화살표는 공기 경로를 나타냅니다.">
+    <defs>
+      <marker id="hangul-air-arrow" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+        <path d="M1 1 L7 4.5 L1 8" fill="none" stroke="var(--viz-series-2)" stroke-width="1.5"/>
+      </marker>
+    </defs>
+    <g data-camera>
+      <path class="anatomy" d="M93 28 Q144 13 207 24 Q260 33 261 68 L263 146 M93 28 Q84 45 63 54 Q53 60 70 64 Q80 62 82 58"/>
+      <path class="anatomy" d="M75 56 Q104 31 150 34 Q207 35 229 59 Q243 75 241 107"/>
+      <path class="anatomy" d="M80 84 L102 84 Q124 61 156 63 Q183 62 209 75 Q218 80 225 80"/>
+      <path class="anatomy" d="M101 83 L102 92 L109 92 L111 78 M241 107 L240 153 M219 146 L219 156"/>
+      <path class="anatomy" data-jaw/>
+      <path class="tongue" data-tongue/>
+      <path class="air" data-flow marker-end="url(#hangul-air-arrow)"/>
+      <circle class="focus" data-contact r="8"/>
+      <path class="focus" data-glottis d="M219 137 l8 2 l-8 2 M239 137 l-8 2 l8 2"/>
+    </g>
+  </svg>
+    <p class="legend"><span><i class="position"></i>조음 위치</span><span><i class="flow"></i>공기 흐름</span><span>성대 진동은 느리게 표시</span></p>
+    <div class="inspect">
+      <label class="selector">음절 <select data-choice></select></label>
+      <label class="seek"><span data-time>0.00 / 2.40초</span><input data-seek type="range" min="0" max="2.4" step="0.01" value="0" aria-label="관찰 중인 음절의 재생 위치"></label>
+    </div>
+    <div class="cue" aria-live="polite" aria-atomic="true">
+      <p data-syllable></p><p data-articulation></p><p data-shot></p>
+    </div>
+  </section>
+  <footer>교육용 조음 모형 · <a href="https://github.com/waterfirst/King-Sejong-s-utterances">소스 코드</a></footer>
+  <noscript>조음 모형을 보려면 브라우저에서 자바스크립트를 켜 주세요.</noscript>
+</main>
+</body>
+</html>
