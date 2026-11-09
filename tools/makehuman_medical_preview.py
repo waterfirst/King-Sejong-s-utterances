@@ -8,6 +8,12 @@ for obj in list(bpy.data.objects):
 bpy.ops.mpfb.create_human()
 human = bpy.data.objects["Human"]
 
+# MPFB includes corrective keys and helper islands in the generated base mesh.
+# They are useful while authoring a full body, but must not be exported to the
+# small, face-only web asset.
+while human.data.shape_keys and human.data.shape_keys.key_blocks:
+    human.shape_key_remove(human.data.shape_keys.key_blocks[-1])
+
 skin = bpy.data.materials.new("Clinical neutral skin")
 skin.diffuse_color = (0.58, 0.67, 0.68, 1.0)
 skin.use_nodes = True
@@ -17,7 +23,9 @@ bsdf.inputs["Roughness"].default_value = 0.58
 human.data.materials.clear()
 human.data.materials.append(skin)
 
-# Keep a lightweight head-and-neck asset for the web viewer.
+# Keep only the actual head and a short section of neck.  MPFB helper islands
+# begin after vertex 13379; removing them prevents the long vertical artifacts
+# that appeared in the first web export.
 bpy.context.view_layer.objects.active = human
 human.select_set(True)
 bpy.ops.object.mode_set(mode='EDIT')
@@ -25,33 +33,12 @@ bpy.ops.mesh.select_all(action='DESELECT')
 bpy.ops.mesh.select_mode(type='VERT')
 bpy.ops.object.mode_set(mode='OBJECT')
 for vertex in human.data.vertices:
-    vertex.select = vertex.co.z < 1.12
+    # Elliptical crop removes shoulders and torso while retaining the full face.
+    head_outline = (vertex.co.x / .315) ** 2 + ((vertex.co.z - 1.515) / .235) ** 2
+    vertex.select = vertex.index >= 13380 or head_outline > 1.12
 bpy.ops.object.mode_set(mode='EDIT')
 bpy.ops.mesh.delete(type='VERT')
 bpy.ops.object.mode_set(mode='OBJECT')
-
-# A deliberately modest, generic mouth-opening shape. It is an illustrative speech loop,
-# not facial motion capture or a clinical measurement.
-basis = human.data.shape_keys.key_blocks[0]
-speak = human.shape_key_add(name='SpeechOpen')
-for i, point in enumerate(speak.data):
-    co = basis.data[i].co
-    if -0.34 < co.y < -0.12 and 1.28 < co.z < 1.42 and abs(co.x) < 0.19:
-        weight = min(1.0, (1.42-co.z)/.14) * max(.15, 1-abs(co.x)/.20)
-        point.co.z -= .042 * weight
-        point.co.y -= .010 * weight
-speak.value = 0
-speak.keyframe_insert('value', frame=1)
-speak.value = .78
-speak.keyframe_insert('value', frame=10)
-speak.value = .18
-speak.keyframe_insert('value', frame=18)
-speak.value = .68
-speak.keyframe_insert('value', frame=28)
-speak.value = 0
-speak.keyframe_insert('value', frame=40)
-bpy.context.scene.frame_start = 1
-bpy.context.scene.frame_end = 40
 
 def aim(obj, point):
     obj.rotation_euler = (Vector(point) - obj.location).to_track_quat('-Z', 'Y').to_euler()
@@ -97,4 +84,4 @@ os.makedirs(os.path.dirname(out), exist_ok=True)
 bpy.ops.object.select_all(action='DESELECT')
 human.select_set(True)
 bpy.context.view_layer.objects.active = human
-bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', use_selection=True, export_animations=True, export_materials='EXPORT')
+bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', use_selection=True, export_animations=False, export_materials='EXPORT')

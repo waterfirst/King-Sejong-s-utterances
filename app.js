@@ -501,7 +501,9 @@
     const cinemaButton=el('cinema');
     function setCinema(on) {
       root.classList.toggle('cinema-mode',on);
-      scene?.setCinematic(on);
+      // Blender face must stay completely static.  The separate oral cutaway
+      // remains an interactive, non-cinematic educational model below it.
+      scene?.setCinematic(false);
       el('blender-face').hidden=!on;
       cinemaButton.setAttribute('aria-pressed',String(on));
       cinemaButton.textContent=on ? '3D 영상 모드 나가기' : '3D 영상 모드';

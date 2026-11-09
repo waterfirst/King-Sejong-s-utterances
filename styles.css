@@ -70,7 +70,7 @@ figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 #hangul-articulation.cinema-mode .cinema-caption strong { font-size: clamp(1.1rem, 2.4vw, 1.75rem); }
 #hangul-articulation.cinema-mode .cinema-caption span { color: #c8d7d0; font-size: .83rem; }
 #hangul-articulation.cinema-mode .stage, #hangul-articulation.cinema-mode .legend { display: none; }
-#hangul-articulation.cinema-mode [data-views] { display: none !important; }
+#hangul-articulation.cinema-mode [data-views] { display: grid !important; margin-top: .75rem; }
 #hangul-articulation.cinema-mode .blender-face-view { display: block; }
 .stage { width: 100%; max-height: 18rem; }
 .anatomy, .tongue, .air, .focus { vector-effect: non-scaling-stroke; stroke-width: 1.6; }
