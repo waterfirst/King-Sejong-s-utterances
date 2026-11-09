@@ -7,6 +7,7 @@
   <title>세종대왕의 한글 창제를 기념하여</title>
   <link rel="stylesheet" href="styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js" integrity="sha384-qOkzR5Ke/XkQxuGVJ9hpFEpDlcoLtWwVYhnJf06cLIZa2vaIptSqaubivErzmD5O" crossorigin="anonymous"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
   <script defer src="articulator.js"></script>
   <script defer src="app.js"></script>
   <script defer src="gallery.js"></script>
@@ -64,6 +65,10 @@
       <figure class="viewport"><canvas data-folds role="img" aria-label="위에서 본 성대와 성문"></canvas><figcaption>성대 · 위에서</figcaption></figure>
       <div class="cinema-caption" aria-live="polite"><strong data-video-caption>발화를 선택해 주세요.</strong><span>3D 조음 시각화 · 혀·입술·성대의 교육용 모형</span></div>
     </div>
+    <figure class="blender-face-view" data-blender-face hidden>
+      <model-viewer src="assets/medical_speech_face.glb" alt="Blender로 만든 중립 인체 얼굴 발화 모형" camera-controls auto-rotate auto-rotate-delay="1200" rotation-per-second="18deg" autoplay animation-name="SpeechOpen" shadow-intensity="0.75" exposure="1.1" interaction-prompt="none"></model-viewer>
+      <figcaption><strong>Blender 의료 발화 얼굴 모형</strong> · 드래그하여 회전 · 입 모양은 반복 발화 시연이며 진단용 모델이 아닙니다.</figcaption>
+    </figure>
 <svg class="stage" viewBox="0 0 360 176" role="img" aria-label="왼쪽을 보는 입과 목의 단면. 원은 조음 위치, 점선 화살표는 공기 경로를 나타냅니다.">
     <defs>
       <marker id="hangul-air-arrow" markerUnits="userSpaceOnUse" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">

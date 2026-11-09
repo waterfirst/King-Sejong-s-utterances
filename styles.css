@@ -56,6 +56,9 @@ canvas { display: block; width: 100%; height: clamp(145px, 32vw, 300px); }
 [data-mouth].is-dragging { cursor: grabbing; }
 figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 .cinema-caption { display: none; }
+.blender-face-view { display: none; margin: 0; overflow: hidden; border: 1px solid #2f555e; border-radius: .8rem; background: #05090d; }
+.blender-face-view model-viewer { display: block; width: 100%; height: min(62vh, 46rem); background: radial-gradient(circle at 50% 30%, #18333c 0, #05090d 70%); }
+.blender-face-view figcaption { padding: .65rem .8rem; color: #c9dbd9; background: #0d181a; }
 #hangul-articulation.cinema-mode { max-width: none; min-height: 100vh; padding: clamp(.75rem, 2vw, 1.5rem); background: #101817; color: #f4f0e8; }
 #hangul-articulation.cinema-mode > :not(.studio) { display: none; }
 #hangul-articulation.cinema-mode .studio { min-height: calc(100vh - clamp(1.5rem, 4vw, 3rem)); grid-template-rows: auto auto auto minmax(0, 1fr) auto auto; border-color: #35514b; background: #172321; }
@@ -67,6 +70,8 @@ figcaption { padding: .25rem .1rem .55rem; font-size: .85rem; }
 #hangul-articulation.cinema-mode .cinema-caption strong { font-size: clamp(1.1rem, 2.4vw, 1.75rem); }
 #hangul-articulation.cinema-mode .cinema-caption span { color: #c8d7d0; font-size: .83rem; }
 #hangul-articulation.cinema-mode .stage, #hangul-articulation.cinema-mode .legend { display: none; }
+#hangul-articulation.cinema-mode [data-views] { display: none !important; }
+#hangul-articulation.cinema-mode .blender-face-view { display: block; }
 .stage { width: 100%; max-height: 18rem; }
 .anatomy, .tongue, .air, .focus { vector-effect: non-scaling-stroke; stroke-width: 1.6; }
 .anatomy { fill: none; stroke: var(--muted); }
@@ -154,6 +159,7 @@ a { color: var(--viz-series-1); }
   #hangul-articulation.cinema-mode .views { grid-template-columns: minmax(0, 1fr); }
   #hangul-articulation.cinema-mode canvas { height: 54vh; }
   #hangul-articulation.cinema-mode .cinema-caption { max-width: calc(100% - 2rem); left: 1rem; bottom: 1rem; }
+  .blender-face-view model-viewer { height: 54vh; }
 }
 
 .atlas { max-width: 72rem; }
